@@ -1,0 +1,86 @@
+@use 'colors' as *;
+
+// ---------------------------------------------------------------
+// Typography
+// ---------------------------------------------------------------
+
+h1{
+	font-size: 50px;
+	line-height: 1em;
+	color: $primary_color;
+}
+
+h2{
+	font-size: 24px;
+	line-height: 24px;
+	margin-bottom: 16px;
+	color: $secondary_color;
+}
+
+h3{
+	font-size: 20px;
+	line-height: 20px;
+	margin-bottom: 8px;
+	color: $secondary_color;
+}
+
+h4{
+	font-size: 18px;
+	line-height: 1em;
+	margin-bottom: 16px;
+	color: $secondary_color;
+}
+
+p{
+	font-size: 16px;
+	line-height: 18px;
+	margin-bottom: 8px;
+	color: $secondary_color;
+
+	&.subtitle{
+		font-size: 32px;
+		line-height: 32px;
+		color: $secondary_color;
+	}
+
+	&.small{
+		font-size: 12px;
+		line-height: 14px;
+	}
+}
+
+ul,
+ol{
+	padding-left: 18px;
+	margin-bottom: 24px;
+
+	li{
+		font-size: 16px;
+		line-height: 24px;
+		margin-bottom: 8px;
+		color: $secondary_color;
+	}
+}
+
+dt{
+	font-size: 16px;
+	line-height: 24px;
+	font-weight: 700;
+	color: $secondary_color;
+}
+
+dd{
+	font-size: 16px;
+	line-height: 24px;
+	margin-bottom: 8px;
+	color: $secondary_color;
+}
+
+
+.regular{
+	font-weight: 400;
+}
+
+.grey {
+	color: $tertiary_color;
+}
