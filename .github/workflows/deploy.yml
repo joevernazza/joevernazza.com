@@ -1,4 +1,4 @@
-# Builds the site with Vite and uploads it to Namecheap over FTP
+# Builds the site with Vite and uploads it to Namecheap over SSH (rsync)
 # every time you push to the main branch.
 name: Build & Deploy
 
@@ -41,13 +41,18 @@ jobs:
           cp -r js/. dist/js/
           cp -r images dist/
 
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
+
+      # Copies dist/ to the server, only sending files that changed.
+      # (No --delete, so other files on the server, e.g. .htaccess, are left alone.)
       - name: Upload to Namecheap
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps
-          local-dir: ./dist/
-          server-dir: ${{ secrets.FTP_SERVER_DIR }}
-          log-level: verbose
+        run: |
+          rsync -avz \
+            -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }}" \
+            dist/ \
+            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}"
