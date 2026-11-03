@@ -50,3 +50,4 @@ jobs:
           protocol: ftps
           local-dir: ./dist/
           server-dir: ${{ secrets.FTP_SERVER_DIR }}
+          log-level: verbose
