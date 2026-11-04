@@ -1,41 +1,71 @@
 @use 'colors' as *;
+@use 'breakpoints' as *;
 
 // ---------------------------------------------------------------
 // Typography
 // ---------------------------------------------------------------
 
 h1{
-	font-size: 50px;
+	font-size: 36px;
 	line-height: 1em;
 	color: $primary_color;
+
+	@include mq(tablet){
+		font-size: 42px;
+	}	
+
+	@include mq(desktop){
+		font-size: 50px;
+	}	
 }
 
 h2{
-	font-size: 24px;
-	line-height: 24px;
+	font-size: 20px;
+	line-height: 1.25em;
 	margin-bottom: 16px;
 	color: $secondary_color;
+
+	@include mq(tablet){
+		font-size: 22px;
+	}	
+
+	@include mq(desktop){
+		font-size: 24px;
+	}
 }
 
 h3{
-	font-size: 20px;
-	line-height: 20px;
+	font-size: 16px;
+	line-height: 1.25em;
 	margin-bottom: 8px;
 	color: $secondary_color;
+
+	@include mq(tablet){
+		font-size: 20px;
+	}
 }
 
 h4{
-	font-size: 18px;
-	line-height: 1em;
+	font-size: 16px;
+	line-height: 1.25em;
 	margin-bottom: 16px;
 	color: $secondary_color;
+
+	@include mq(tablet){
+		font-size: 18px;
+	}
 }
 
 p{
-	font-size: 16px;
+	font-size: 14px;
 	line-height: 18px;
 	margin-bottom: 8px;
 	color: $secondary_color;
+
+	@include mq(tablet){
+		font-size: 16px;
+		line-height: 20px;
+	}
 
 	&.subtitle{
 		font-size: 32px;
@@ -55,25 +85,40 @@ ol{
 	margin-bottom: 24px;
 
 	li{
-		font-size: 16px;
-		line-height: 24px;
+		font-size: 14px;
+		line-height: 20px;
 		margin-bottom: 8px;
 		color: $secondary_color;
+
+		@include mq(tablet){
+			font-size: 16px;
+			line-height: 24px;
+		}
 	}
 }
 
 dt{
-	font-size: 16px;
-	line-height: 24px;
+	font-size: 14px;
+	line-height: 20px;
 	font-weight: 700;
 	color: $secondary_color;
+
+	@include mq(tablet){
+		font-size: 16px;
+		line-height: 24px;
+	}
 }
 
 dd{
-	font-size: 16px;
-	line-height: 24px;
+	font-size: 14px;
+	line-height: 20px;
 	margin-bottom: 8px;
 	color: $secondary_color;
+
+	@include mq(tablet){
+		font-size: 16px;
+		line-height: 24px;
+	}
 }
 
 
