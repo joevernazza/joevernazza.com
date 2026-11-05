@@ -8,15 +8,17 @@ export default function Edit( { attributes, setAttributes } ) {
 
 	return (
 		<aside { ...blockProps }>
-			<RichText
-				tagName="h2"
-				className="callout__title"
-				placeholder={ __( 'Callout heading', 'joevernazza' ) }
-				value={ attributes.title }
-				onChange={ ( title ) => setAttributes( { title } ) }
-				allowedFormats={ [ 'core/bold', 'core/italic' ] }
-			/>
-			<InnerBlocks template={ TEMPLATE } />
+			<div className="container">
+				<RichText
+					tagName="h2"
+					className="callout__title"
+					placeholder={ __( 'Callout heading', 'joevernazza' ) }
+					value={ attributes.title }
+					onChange={ ( title ) => setAttributes( { title } ) }
+					allowedFormats={ [ 'core/bold', 'core/italic' ] }
+				/>
+				<InnerBlocks template={ TEMPLATE } />
+			</div>
 		</aside>
 	);
 }

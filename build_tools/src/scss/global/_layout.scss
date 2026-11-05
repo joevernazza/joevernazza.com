@@ -75,9 +75,14 @@
 
 .site-footer__inner {
 	flex-direction: column;
-	gap: 0;
+	gap: var(--wp--preset--spacing--20);
 
 	@include mq(tablet) {
 		flex-direction: row;
 	}
+}
+
+.site-footer__brand,
+.site-footer__meta {
+	gap: 4px;
 }

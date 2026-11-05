@@ -18,6 +18,7 @@ module.exports = [
 				'@wordpress/block-editor',
 				'@wordpress/components',
 				'@wordpress/i18n',
+				'@wordpress/server-side-render',
 			],
 		},
 	},

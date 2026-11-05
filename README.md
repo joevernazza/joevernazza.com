@@ -42,10 +42,12 @@ Each of these came from building and testing this site. They now live in the tem
 | --- | --- |
 | Moved the Vite build into `build_tools/`, writing into the theme's `assets/` | Keeps Node tooling out of the web root and out of deploys. The theme gets plain, fixed-name CSS/JS files that `functions.php` enqueues, versioned by file modification time so each build busts the cache. |
 | Replaced Twenty Twenty-Five with a custom theme (own prefix and text domain, only five templates, own patterns, no stock style variations) | A renamed default theme isn't a custom theme. Removing about 100 unused patterns and templates makes the code small enough to read and maintain. |
+| Removed the full-page patterns (Home, About, Contact, Accessibility) and kept only section patterns | Any full-page pattern makes WordPress open a "Choose a pattern" screen every time a page is added. Pages here are built from sections, so the screen only got in the way. |
 | Moved site behavior into a **must-use plugin** | The theme handles presentation and plugins handle behavior. A must-use plugin can't be deactivated, so security, SEO and pages-only mode survive a theme switch. |
 | **Pages-only mode**: posts, comments, feeds, pingbacks and their admin screens are removed | This is a brochure/portfolio site. Leftover blog features add attack surface (comment spam, pingbacks, XML-RPC), clutter the admin, and leak empty archives and feeds to search engines. |
 | Design tokens in `theme.json`, with SCSS reading WordPress's generated CSS custom properties | One source of truth, so the editor and the front end can't drift apart. Editors can only pick palette colors, which keeps contrast in check. |
 | Custom blocks are built with `@wordpress/scripts` and registered from the plugin | It's WordPress's own block toolchain. The blocks are dynamic (`render.php`), so changing their markup later never triggers "invalid block" errors in the editor. |
+| **Site Settings** screen (Head, Header, Footer) and a dynamic **Site Info** block for the footer | Site-wide values such as the GTM ID, verification tags, contact details and social links are edited in the admin, not in code. That keeps the GTM ID out of the repo and lets content changes skip a deploy. All fields are declared in one list, which drives the screen, the sanitizing and the storage. The footer shows the values through a block that renders on every request, so they stay current even after the footer is edited in the Site Editor. |
 | The header finds the Main menu by its slug (`main-menu`), not by post ID | Menu IDs differ on every site and every database. Looking it up by slug works on any install, and the header falls back to a page list if the menu is missing. |
 
 **Repository and deployment**
@@ -84,7 +86,7 @@ Each of these came from building and testing this site. They now live in the tem
 | A 2px focus ring on every control (white on dark backgrounds), plus forced-colors support | Visible focus is required (WCAG 2.4.7/2.4.11), and the ring needs 3:1 contrast against whatever it sits on, including in Windows High Contrast. |
 | Menu items and buttons are at least 44px tall, using a selector specific enough to beat core's navigation CSS | This exceeds WCAG 2.5.8's 24px minimum. The first version lost to core's more specific selector, which left the focus ring misaligned. |
 | Scroll-reveal content is visible without JavaScript, and reduced motion turns off animation and smooth scrolling | Content never depends on a script running or on motion people have asked to avoid. |
-| An Accessibility statement page and an automated test (`npm run test:a11y`) that runs on every install | It states the target and how to report problems. The test runs axe-core on every page at two widths, plus keyboard checks, so regressions surface immediately. |
+| An automated accessibility test (`npm run test:a11y`) that runs on every install, and a footer link to an Accessibility statement page when one is published | The test runs axe-core on every page at two widths, plus keyboard checks, so regressions surface immediately. The statement tells visitors the target and how to report problems. |
 
 ## Tech stack
 
@@ -108,16 +110,21 @@ Each of these came from building and testing this site. They now live in the tem
   - `theme.json` is the single source of design tokens: color palette, the self-hosted Rubik variable font, a fluid type scale and spacing. SCSS reads the CSS custom properties WordPress generates from it.
   - Templates: `front-page`, `page`, `page-no-title`, `index` and `404`.
   - Header with the site title and the **Main** menu (a Navigation menu with the slug `main-menu`, edited in Appearance → Editor → Navigation). The footer links to the Accessibility and Privacy pages when they're published.
-  - Block patterns in the "Joe Vernazza" category: Hero, Text section, Call to action, and full-page patterns for Home, About, Contact and an Accessibility statement.
+  - Section patterns in the "Joe Vernazza" category: Hero, Text section and Call to action. There are deliberately no full-page patterns: WordPress shows any full-page pattern in a "Choose a pattern" screen every time a page is added.
   - The **"Reveal on scroll"** block style on Group and Separator blocks fades a section's content in as it scrolls into view.
 - **Must-use plugin ([`public_html/wp-content/mu-plugins`](public_html/wp-content/mu-plugins))**: always loaded, can't be deactivated, survives a theme switch.
   - `pages-only.php`: removes posts, categories, tags, comments, pingbacks and feeds from the admin, front end, sitemap and block inserter.
   - `security.php`: disables XML-RPC and the file editors, hides REST user enumeration, uses one login error message for any failure, and sends security headers.
   - `seo.php`: meta description (from the page excerpt), Open Graph/Twitter tags, `WebSite` JSON-LD. Steps aside if a full SEO plugin is installed.
-  - `analytics.php`: Google Tag Manager, only when `WP_ENVIRONMENT_TYPE` is `production` and a container ID is set.
+  - `site-settings.php`: **Settings → Site Settings**, editable site-wide fields grouped as Head (GTM ID, Google/Bing verification, custom head code), Header (empty, ready for fields) and Footer (footer text, contact details, social links). Fields are declared once in `joevernazza_site_settings_fields()` (or the filter of the same name), which drives the admin screen, sanitizing and storage. Read values with `joevernazza_site_setting( 'key' )`.
+  - `analytics.php`: Google Tag Manager, only when `WP_ENVIRONMENT_TYPE` is `production` and a container ID is set in Site Settings. A `JOEVERNAZZA_GTM_ID` constant in `wp-config.php` overrides it.
   - `htaccess.php`: browser caching and compression rules in `.htaccess`, between their own markers.
   - `blocks.php`: registers every block built into `joevernazza/blocks/`.
-- **Blocks ([`build_tools/src/blocks`](build_tools/src/blocks))**: one folder per block, built with `@wordpress/scripts`. `callout` is an example dynamic block (`render.php` + inner blocks). Copy it to start a new one.
+- **Blocks ([`build_tools/src/blocks`](build_tools/src/blocks))**: one folder per block, built with `@wordpress/scripts`. Every block wraps its contents in an inner `<div class="container">`, which is a styling hook with no CSS of its own (see [`docs/blocks-and-markup.md`](docs/blocks-and-markup.md)).
+  - `section` wraps any blocks in `<section>` + `.container`. It has only an HTML anchor (id) and custom classes, set in the Advanced panel.
+  - `site-info` shows Site Settings values (footer text, contact details or social links). The footer uses it so values stay current even after the template is edited in the Site Editor: a dynamic block renders on every request, while PHP inside a pattern only runs once.
+  - `circular-cta` is a circle with rich text (bold, italic, strikethrough, sub/superscript). With a URL, the whole circle is one link and links inside the text are removed, since nested links are invalid HTML. Without one, the text can contain its own links. Options: three sizes, palette colors, font size, alignment, open in new tab.
+  - `callout` is an example dynamic block (`render.php` + inner blocks). Copy it to start a new one.
 
 ## Project structure
 
@@ -155,7 +162,7 @@ npm install
 npm run watch                 # rebuild on save, with live reload
 ```
 
-On a fresh clone, `docker compose up` copies WordPress core in and opens the installer. Then activate the **Joe Vernazza** theme, create a page from the **Home page** pattern, set it as the homepage (Settings → Reading), and set permalinks to **Post name**. Or run `scripts/pull-db.sh` to copy production.
+On a fresh clone, `docker compose up` copies WordPress core in and opens the installer. Then activate the **Joe Vernazza** theme, create a Home page, set it as the homepage (Settings → Reading), and set permalinks to **Post name**. Or run `scripts/pull-db.sh` to copy production.
 
 Docker sets `WP_ENVIRONMENT_TYPE` to `local`, so analytics never load. WP-CLI: `docker compose run --rm cli wp <command>`.
 
@@ -191,7 +198,7 @@ The target is **WCAG 2.2 Level AA**. What's built in:
 - **Targets:** menu items, the menu buttons and buttons are at least 44px tall (WCAG 2.5.8 asks for 24px).
 - **Motion:** scroll-reveal content is visible without JavaScript. Reduced-motion settings turn off animations and smooth scrolling.
 - **Forced colors:** focus rings, buttons and separators stay visible in Windows High Contrast.
-- **Accessibility statement:** the Accessibility page (footer link) states the target, what's done, known limitations and how to report a problem. Review it before launch.
+- **Accessibility statement:** the footer links to a page with the slug `accessibility` when one is published. Publish one before launch, stating the target, what's done, known limitations and how to report a problem.
 
 **Testing:** `npm run test:a11y` in `build_tools/` loads every published page, plus search and 404 results, at desktop (1280px) and mobile (375px) widths. It runs axe-core with the WCAG 2.0/2.1/2.2 A and AA rules, then checks the skip link, the focus ring and the mobile menu from the keyboard. It exits non-zero on any problem. The first run needs `npx playwright install chromium`. ESLint also applies `jsx-a11y` rules to block code.
 

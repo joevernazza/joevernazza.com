@@ -3,9 +3,9 @@
  * Google Tag Manager, output on production only (and only when a container
  * ID is set).
  *
- * The container ID can be overridden in wp-config.php:
+ * The container ID comes from Settings > Site Settings > Head. A constant in
+ * wp-config.php overrides it (an empty string turns analytics off):
  *     define( 'JOEVERNAZZA_GTM_ID', 'GTM-XXXXXXX' );
- * Define it as an empty string to turn analytics off.
  *
  * @package joevernazza
  */
@@ -23,7 +23,7 @@ function joevernazza_gtm_id() {
 	if ( 'production' !== wp_get_environment_type() ) {
 		return '';
 	}
-	$id = defined( 'JOEVERNAZZA_GTM_ID' ) ? (string) JOEVERNAZZA_GTM_ID : 'GTM-TKZKXFC8';
+	$id = defined( 'JOEVERNAZZA_GTM_ID' ) ? (string) JOEVERNAZZA_GTM_ID : joevernazza_site_setting( 'gtm_id' );
 	return preg_match( '/^GTM-[A-Z0-9]+$/', $id ) ? $id : '';
 }
 

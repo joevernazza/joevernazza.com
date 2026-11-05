@@ -27,7 +27,8 @@ $table_prefix = 'joevernazza_'; // Non-default prefix, set at install time.
 // Google Tag Manager when this is 'production'. Docker sets 'local'.
 define( 'WP_ENVIRONMENT_TYPE', 'production' );
 
-// Optional: override or disable (empty string) the GTM container.
+// Optional: the GTM container is normally set in Settings > Site Settings.
+// Define this to override it, or as an empty string to turn analytics off.
 // define( 'JOEVERNAZZA_GTM_ID', 'GTM-XXXXXXX' );
 
 // ** URLs and HTTPS ** //

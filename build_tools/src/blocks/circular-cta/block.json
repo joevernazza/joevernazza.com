@@ -1,0 +1,42 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "joevernazza/circular-cta",
+	"version": "1.0.0",
+	"title": "Circular CTA",
+	"category": "design",
+	"icon": "marker",
+	"description": "A circle with formatted text that can link anywhere. Use it for short calls to action like \"Download my resume\".",
+	"keywords": [ "cta", "circle", "button", "call to action", "badge" ],
+	"textdomain": "joevernazza",
+	"attributes": {
+		"content": { "type": "string", "default": "" },
+		"url": { "type": "string", "default": "" },
+		"opensInNewTab": { "type": "boolean", "default": false },
+		"size": {
+			"type": "string",
+			"enum": [ "small", "medium", "large" ],
+			"default": "medium"
+		},
+		"backgroundColor": { "type": "string", "default": "primary" },
+		"textColor": { "type": "string", "default": "white" }
+	},
+	"supports": {
+		"html": false,
+		"anchor": true,
+		"align": [ "left", "center", "right" ],
+		"color": { "background": true, "text": true, "gradients": false },
+		"typography": { "fontSize": true },
+		"spacing": { "margin": true }
+	},
+	"example": {
+		"attributes": {
+			"content": "<strong>Let's talk</strong><br>Book a call",
+			"url": "#",
+			"size": "medium"
+		}
+	},
+	"editorScript": "file:./index.js",
+	"style": "file:./style-index.css",
+	"render": "file:./render.php"
+}
