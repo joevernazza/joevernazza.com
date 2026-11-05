@@ -1,19 +1,68 @@
-# Builds the site with Vite and uploads it to Namecheap over SSH (rsync)
+# Lints, builds and deploys joevernazza.com over SSH (rsync)
 # every time you push to the main branch.
-name: Build & Deploy
+#
+# Deploys only our own code:
+#   - the theme            -> wp-content/themes/joevernazza/
+#   - the must-use plugin  -> wp-content/mu-plugins/joevernazza(.php)
+# WordPress core, wp-config.php, other plugins and uploads live on the server
+# and are never touched.
+name: Lint, Build & Deploy
 
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch: # adds a "Run workflow" button in the Actions tab
 
 # Never run two deploys at the same time
 concurrency:
-  group: deploy
+  group: deploy-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+          coverage: none
+
+      - name: Install PHP tools
+        run: composer install --no-interaction --no-progress
+
+      # WordPress Coding Standards + PHP compatibility (see phpcs.xml.dist)
+      - name: PHPCS
+        run: vendor/bin/phpcs -q
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: build_tools/package-lock.json
+
+      - name: Install JS dependencies
+        working-directory: build_tools
+        run: npm ci
+
+      - name: ESLint
+        working-directory: build_tools
+        run: npm run lint:js
+
+      - name: Stylelint
+        working-directory: build_tools
+        run: npm run lint:css
+
   deploy:
+    needs: lint
+    # Only deploy from main (pull requests stop after lint).
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -24,22 +73,16 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: build_tools/package-lock.json
 
       - name: Install dependencies
+        working-directory: build_tools
         run: npm ci
 
+      # Vite -> theme assets/; wp-scripts -> mu-plugins/joevernazza/blocks/
       - name: Build
+        working-directory: build_tools
         run: npm run build
-
-      # Collect only the files the live site needs into dist/
-      # (keeps src/, node_modules/, configs, etc. off the server)
-      - name: Assemble site
-        run: |
-          mkdir -p dist/css dist/js
-          cp index.php JoeVernazzaResume.pdf dist/
-          cp css/main.css dist/css/
-          cp -r js/. dist/js/
-          cp -r images dist/
 
       - name: Set up SSH key
         run: |
@@ -48,11 +91,23 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
 
-      # Copies dist/ to the server, only sending files that changed.
-      # (No --delete, so other files on the server, e.g. .htaccess, are left alone.)
-      - name: Upload to Namecheap
+      # Each upload only sends changed files. --delete is scoped to our own
+      # folders, so removed templates/patterns disappear on the server too
+      # while nothing else in wp-content is affected.
+      - name: Upload theme
         run: |
-          rsync -avz \
+          rsync -avz --delete --exclude '.DS_Store' \
             -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }}" \
-            dist/ \
-            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}"
+            public_html/wp-content/themes/joevernazza/ \
+            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/wp-content/themes/joevernazza/"
+
+      - name: Upload must-use plugin
+        run: |
+          RSYNC_SSH="ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }}"
+          TARGET="${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/wp-content/mu-plugins"
+          rsync -avz --delete --exclude '.DS_Store' -e "$RSYNC_SSH" \
+            --rsync-path="mkdir -p ${{ secrets.DEPLOY_PATH }}/wp-content/mu-plugins && rsync" \
+            public_html/wp-content/mu-plugins/joevernazza/ "$TARGET/joevernazza/"
+          rsync -avz -e "$RSYNC_SSH" \
+            public_html/wp-content/mu-plugins/joevernazza.php "$TARGET/"
+
