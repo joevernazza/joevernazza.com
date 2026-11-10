@@ -87,7 +87,7 @@ if ( ! function_exists( 'joevernazza_project_image' ) ) {
 
 $joevernazza_ids    = array_values( array_filter( array_map( 'absint', (array) ( $attributes['entries'] ?? array() ) ) ) );
 $joevernazza_level  = in_array( (int) ( $attributes['headingLevel'] ?? 3 ), array( 2, 3, 4 ), true ) ? (int) $attributes['headingLevel'] : 3;
-$joevernazza_length = max( 10, (int) ( $attributes['excerptLength'] ?? 120 ) );
+$joevernazza_length = max( 10, (int) ( $attributes['excerptLength'] ?? 100 ) );
 $joevernazza_posts  = $joevernazza_ids
 	? get_posts(
 		array(

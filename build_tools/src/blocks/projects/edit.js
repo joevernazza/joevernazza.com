@@ -280,7 +280,7 @@ export default function Edit( { attributes, setAttributes, name } ) {
 						min={ 20 }
 						max={ 200 }
 						onChange={ ( value ) =>
-							setAttributes( { excerptLength: value ?? 120 } )
+							setAttributes( { excerptLength: value ?? 100 } )
 						}
 					/>
 				</PanelBody>

@@ -24,7 +24,7 @@
 		},
 		"excerptLength": {
 			"type": "integer",
-			"default": 120
+			"default": 100
 		}
 	},
 	"supports": {
