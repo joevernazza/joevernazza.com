@@ -517,7 +517,7 @@ function joevernazza_portfolio_mobile_details( $block_content, $block ) {
 	$post_id = get_queried_object_id();
 	$brand   = joevernazza_portfolio_brand( $post_id );
 	// Brand (the header's h2.sticky-left-side__title), then the role.
-	$intro  = ( '' === $brand ? '' : '<h2 class="sticky-left-side__title mb0">' . joevernazza_portfolio_brand_label( $brand ) . '</h2>' )
+	$intro  = ( '' === $brand ? '' : '<h2 class="sticky-left-side__title mb0 animate animate--fade">' . joevernazza_portfolio_brand_label( $brand ) . '</h2>' )
 		. joevernazza_portfolio_role_html( $post_id );
 	$launch = joevernazza_portfolio_launch_html( $post_id );
 	return ( '' === $intro ? '' : '<div class="main__details">' . $intro . '</div>' )
