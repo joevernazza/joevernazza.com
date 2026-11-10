@@ -15,11 +15,16 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, li{
 
 h1,
 .header1{
-    font-size: 30px;
-    line-height: 28px;
+    font-size: 25px;
+    line-height: 24px;
     letter-spacing: -0.3px;
     color: $light_color;
     margin-bottom: 12px;
+
+    @include mq("tablet"){
+        font-size: 30px;
+        line-height: 28px;
+    }
 
     @include mq(desktop) {
         font-size: 42px;
