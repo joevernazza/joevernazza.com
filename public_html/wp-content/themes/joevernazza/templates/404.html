@@ -1,15 +1,19 @@
-<!-- wp:template-part {"slug":"header","tagName":"header"} /-->
+<!-- wp:group {"metadata":{"name":"Site container"},"className":"container","layout":{"type":"default"}} -->
+<div class="wp-block-group container">
+	<!-- wp:template-part {"slug":"sticky-left-side","area":"header","tagName":"div"} /-->
 
-<!-- wp:group {"tagName":"main","className":"site-main","layout":{"type":"constrained"}} -->
-<main class="wp-block-group site-main">
-	<!-- wp:heading {"level":1} -->
-	<h1 class="wp-block-heading">Page not found</h1>
-	<!-- /wp:heading -->
+	<!-- wp:group {"tagName":"main","className":"site-main","layout":{"type":"constrained"}} -->
+	<main class="wp-block-group site-main">
+		<!-- wp:heading {"level":1} -->
+		<h1 class="wp-block-heading">Page not found</h1>
+		<!-- /wp:heading -->
 
-	<!-- wp:paragraph -->
-	<p>That page doesn't exist. Head back to the <a href="/">homepage</a>.</p>
-	<!-- /wp:paragraph -->
-</main>
+		<!-- wp:paragraph -->
+		<p>That page doesn't exist. Head back to the <a href="/">homepage</a>.</p>
+		<!-- /wp:paragraph -->
+	</main>
+	<!-- /wp:group -->
+</div>
 <!-- /wp:group -->
 
 <!-- wp:template-part {"slug":"footer","tagName":"footer"} /-->

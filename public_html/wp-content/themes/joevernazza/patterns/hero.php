@@ -3,7 +3,7 @@
  * Title: Hero
  * Slug: joevernazza/hero
  * Categories: joevernazza
- * Description: Large page heading with an intro line.
+ * Description: Section heading (h2) with an intro line. The page's h1 comes from the Sticky Left Side header or the page title.
  *
  * @package joevernazza
  */
@@ -11,8 +11,8 @@
 ?>
 <!-- wp:group {"tagName":"section","className":"is-style-reveal hero","layout":{"type":"default"}} -->
 <section class="wp-block-group is-style-reveal hero">
-	<!-- wp:heading {"level":1} -->
-	<h1 class="wp-block-heading"><?php echo esc_html( get_bloginfo( 'name' ) ); ?></h1>
+	<!-- wp:heading -->
+	<h2 class="wp-block-heading"><?php echo esc_html( get_bloginfo( 'name' ) ); ?></h2>
 	<!-- /wp:heading -->
 
 	<!-- wp:paragraph {"className":"hero__subtitle","fontSize":"xx-large"} -->

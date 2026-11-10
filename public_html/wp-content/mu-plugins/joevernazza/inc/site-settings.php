@@ -9,7 +9,7 @@
  * - Values are stored together in the `joevernazza_site_settings` option and
  *   read with joevernazza_site_setting( 'key' ).
  * - Head values are printed here; the GTM ID is used by analytics.php; footer
- *   values are shown by the "Site Info" block (blocks/site-info).
+ *   values are read with joevernazza_site_setting().
  *
  * @package joevernazza
  */
@@ -67,6 +67,12 @@ function joevernazza_site_settings_fields() {
 			'title'       => __( 'Footer', 'joevernazza' ),
 			'description' => __( 'Shown in the site footer by the Site Info block. Empty fields are hidden.', 'joevernazza' ),
 			'fields'      => array(
+				'hide_footer'      => array(
+					'label'          => __( 'Hide footer', 'joevernazza' ),
+					'type'           => 'checkbox',
+					'checkbox_label' => __( 'Hide the footer on every page', 'joevernazza' ),
+					'description'    => __( 'Temporarily removes the footer from the front end. Untick to bring it back; its content is kept.', 'joevernazza' ),
+				),
 				'footer_text'      => array(
 					'label'       => __( 'Footer text', 'joevernazza' ),
 					'type'        => 'text',
@@ -244,7 +250,16 @@ function joevernazza_site_settings_render_field( $args ) {
 	}
 	$described = $desc ? sprintf( ' aria-describedby="%s-description"', esc_attr( $id ) ) : '';
 
-	if ( 'code' === $field['type'] ) {
+	if ( 'checkbox' === $field['type'] ) {
+		printf(
+			'<label for="%1$s"><input type="checkbox" id="%1$s" name="%2$s" value="1"%3$s%4$s /> %5$s</label>',
+			esc_attr( $id ),
+			esc_attr( $name ),
+			checked( '1', $value, false ),
+			$described, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above.
+			esc_html( $field['checkbox_label'] ?? $field['label'] )
+		);
+	} elseif ( 'code' === $field['type'] ) {
 		printf(
 			'<textarea id="%1$s" name="%2$s" rows="6" class="large-text code" spellcheck="false"%3$s>%4$s</textarea>',
 			esc_attr( $id ),
@@ -258,7 +273,7 @@ function joevernazza_site_settings_render_field( $args ) {
 			'url'   => 'url',
 		);
 		printf(
-			'<input type="%1$s" id="%2$s" name="%3$s" value="%4$s" class="regular-text" placeholder="%5$s"%6$s>',
+			'<input type="%1$s" id="%2$s" name="%3$s" value="%4$s" class="regular-text" placeholder="%5$s"%6$s />',
 			esc_attr( $input_types[ $field['type'] ] ?? 'text' ),
 			esc_attr( $id ),
 			esc_attr( $name ),
@@ -305,6 +320,9 @@ function joevernazza_site_settings_sanitize( $input ) {
 					}
 					$value = sanitize_text_field( $raw );
 					break;
+				case 'checkbox':
+					$value = '1' === $raw ? '1' : '';
+					break;
 				case 'code':
 					$value = current_user_can( 'unfiltered_html' ) ? $raw : wp_kses_post( $raw );
 					break;
@@ -336,7 +354,7 @@ function joevernazza_site_settings_verification() {
 		'msvalidate.01'            => joevernazza_site_setting( 'bing_verification' ),
 	);
 	foreach ( array_filter( $tags ) as $name => $content ) {
-		printf( '<meta name="%s" content="%s">' . "\n", esc_attr( $name ), esc_attr( $content ) );
+		printf( '<meta name="%s" content="%s" />' . "\n", esc_attr( $name ), esc_attr( $content ) );
 	}
 }
 add_action( 'wp_head', 'joevernazza_site_settings_verification', 1 );
@@ -353,3 +371,19 @@ function joevernazza_site_settings_head_code() {
 	}
 }
 add_action( 'wp_head', 'joevernazza_site_settings_head_code', 99 );
+
+/**
+ * Removes the footer template part from the front end while "Hide footer" is
+ * ticked in Settings > Site Settings. The Site Editor still shows it.
+ *
+ * @param string $block_content Rendered template part.
+ * @param array  $block         Parsed block.
+ * @return string
+ */
+function joevernazza_site_settings_hide_footer( $block_content, $block ) {
+	if ( 'footer' === ( $block['attrs']['slug'] ?? '' ) && '1' === joevernazza_site_setting( 'hide_footer' ) ) {
+		return '';
+	}
+	return $block_content;
+}
+add_filter( 'render_block_core/template-part', 'joevernazza_site_settings_hide_footer', 10, 2 );

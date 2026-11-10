@@ -19,6 +19,12 @@ x-wp-env: &wp-env
   WORDPRESS_DB_PASSWORD: ${DB_PASSWORD:-joevernazza}
   WORDPRESS_CONFIG_EXTRA: |
     define( 'WP_ENVIRONMENT_TYPE', 'local' );
+    // Core is in git: no automatic updates, so it only changes on purpose.
+    define( 'AUTOMATIC_UPDATER_DISABLED', true );
+    // Use the address the site is opened from (e.g. http://<Mac's IP>:8090 on
+    // a phone on the same Wi-Fi). WP-CLI has no host: localhost:8090.
+    define( 'WP_HOME', 'http://' . ( $$_SERVER['HTTP_HOST'] ?? 'localhost:8090' ) );
+    define( 'WP_SITEURL', WP_HOME );
 
 services:
   db:

@@ -1,11 +1,14 @@
 # Lints, builds and deploys joevernazza.com over SSH (rsync)
 # every time you push to the main branch.
 #
-# Deploys only our own code:
+# Deploys what's in git:
+#   - WordPress core       -> wp-admin/, wp-includes/, the root .php files and
+#                             wp-content's "silence" index.php files
 #   - the theme            -> wp-content/themes/joevernazza/
 #   - the must-use plugin  -> wp-content/mu-plugins/joevernazza(.php)
-# WordPress core, wp-config.php, other plugins and uploads live on the server
-# and are never touched.
+# wp-config.php, .htaccess, uploads and anything else on the server are never
+# touched. Core is updated on purpose (automatic updates are off): commit the
+# new version and push.
 name: Lint, Build & Deploy
 
 on:
@@ -84,12 +87,48 @@ jobs:
         working-directory: build_tools
         run: npm run build
 
+      # Runtime PHP libraries of the must-use plugin (svg-sanitize), into
+      # mu-plugins/joevernazza/vendor/. Without them SVG uploads stay off.
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+          coverage: none
+
+      - name: Install must-use plugin PHP dependencies
+        run: composer install --no-dev --no-interaction --no-progress --optimize-autoloader -d public_html/wp-content/mu-plugins/joevernazza
+
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
+
+      # WordPress core, as committed. wp-admin/ and wp-includes/ belong to core
+      # entirely, so they're mirrored (--delete removes files a release
+      # dropped). The root files are sent without --delete and with
+      # wp-config.php excluded, so the server's config, .htaccess and uploads
+      # are never touched. -R (--relative) creates wp-content/, plugins/ and
+      # themes/ on a fresh server.
+      - name: Upload WordPress core
+        run: |
+          RSYNC_SSH="ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }}"
+          TARGET="${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}"
+          for dir in wp-admin wp-includes; do
+            rsync -avz --delete --exclude '.DS_Store' -e "$RSYNC_SSH" \
+              "public_html/$dir/" "$TARGET/$dir/"
+          done
+          rsync -avz -e "$RSYNC_SSH" \
+            --exclude '/wp-config.php' --exclude '/wp-config-docker.php' \
+            --include '/*.php' --include '/license.txt' --include '/readme.html' \
+            --exclude '*' \
+            public_html/ "$TARGET/"
+          cd public_html
+          rsync -avzR -e "$RSYNC_SSH" \
+            ./wp-content/index.php ./wp-content/plugins/index.php ./wp-content/themes/index.php \
+            "$TARGET/"
 
       # Each upload only sends changed files. --delete is scoped to our own
       # folders, so removed templates/patterns disappear on the server too
@@ -105,7 +144,8 @@ jobs:
         run: |
           RSYNC_SSH="ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }}"
           TARGET="${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/wp-content/mu-plugins"
-          rsync -avz --delete --exclude '.DS_Store' -e "$RSYNC_SSH" \
+          rsync -avz --delete --exclude '.DS_Store' \
+            --exclude 'composer.json' --exclude 'composer.lock' -e "$RSYNC_SSH" \
             --rsync-path="mkdir -p ${{ secrets.DEPLOY_PATH }}/wp-content/mu-plugins && rsync" \
             public_html/wp-content/mu-plugins/joevernazza/ "$TARGET/joevernazza/"
           rsync -avz -e "$RSYNC_SSH" \

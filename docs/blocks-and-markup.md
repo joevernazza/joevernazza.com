@@ -14,6 +14,7 @@ Rules for creating custom blocks and writing block markup (patterns, templates, 
 | Design tokens | `themes/joevernazza/theme.json` |
 | Global SCSS (not block-specific) | `build_tools/src/scss/global/` |
 | Site-wide editable values | Settings → Site Settings (`mu-plugins/joevernazza/inc/site-settings.php`) |
+| Portfolio post type, brand, launch-link and slider-image meta, `<picture>` helper | `mu-plugins/joevernazza/inc/portfolio.php`; entry template `themes/joevernazza/templates/single-portfolio.html` |
 
 Blocks belong to the **must-use plugin**, not the theme. Content must survive a theme switch.
 
@@ -22,9 +23,9 @@ Blocks belong to the **must-use plugin**, not the theme. Content must survive a 
 ### 1. Start from an existing block
 
 Copy the closest one:
-- **`section`**: the simplest block. It's `<section>` + `.container` around any inner blocks, with only the anchor (id) and custom-class supports.
-- **`callout`**: a dynamic block with a RichText attribute and inner blocks.
-- **`site-info`**: a dynamic block with no inner blocks, a `ServerSideRender` preview and an Inspector control.
+- **`section`**: the simplest block. It's a `<section>` directly around any inner blocks, with the anchor (id) and custom-class supports, and no attributes.
+- **`menu`**: the simplest repeatable list: an array attribute of `{ text, url, opensInNewTab }` edited in the sidebar (add, move, remove; `URLInput` for page search), output as `<nav>` + `<ul>` with `aria-current="page"` on the current link.
+- **`sticky-left-side`**: a dynamic block with RichText attributes, a repeatable list of objects edited in the sidebar (`socials`: add, move, remove, `MediaUpload` per item), and one locked inner block (the Menu, via `InnerBlocks` with `template` + `templateLock: "all"`, echoed from `$content`).
 
 Each block folder contains:
 
@@ -34,26 +35,26 @@ build_tools/src/blocks/<name>/
 ├── index.js      # registerBlockType( metadata.name, { edit, save } )
 ├── edit.js       # editor UI
 ├── render.php    # front-end output (dynamic blocks)
-└── style.scss    # front end + editor styles (imported by index.js)
+└── style.scss    # editor-only styles (imported by index.js; see step 6)
 ```
 
-### Every block has an inner `.container` (required)
+### Block markup structure
 
-Every custom block wraps its contents in `<div class="container">`, directly inside the block's outer element:
+Blocks put their contents directly inside the block's outer element. **Don't add an inner `<div class="container">`**: no block has one. The only `.container` is the site wrapper in the templates (see "Templates").
 
 ```html
-<section class="wp-block-joevernazza-section my-class" id="my-anchor">
-	<div class="container">
-		…the block's contents / inner blocks…
-	</div>
-</section>
+<aside class="wp-block-joevernazza-example example" id="my-anchor">
+	<h2 class="example__title">…</h2>
+	…inner blocks…
+</aside>
 ```
 
-- Do this in **both** `render.php` (front end) and `edit.js` (editor), so the editor's DOM matches. For inner blocks, put the class on the inner-blocks element: `useInnerBlocksProps( { className: 'container' } )`. Otherwise wrap the contents in `<div className="container">`.
-- **Outer element:** carries `get_block_wrapper_attributes()` / `useBlockProps()` (supports, anchor id, custom classes). The block's own BEM classes stay on the elements they style. Don't move them onto `.container`.
-- **Text-level blocks:** if a block's content is a `<p>`, `<ul>` or `<span>`, the outer element must be a `<div>`, because a `<div>` can't go inside those. See `site-info/render.php`: `<div wrapper><div class="container"><p class="site-info …">`.
-- **`.container` has no styles.** It's a hook. Don't add CSS for it unless asked (see the CSS rule in `CLAUDE.md`).
-- **Check existing child selectors:** adding the wrapper moves the contents one level deeper. Any existing `.block > *` selector stops matching, and that changes layout without any CSS edit. Report this to the user instead of changing the CSS. For example, Callout's `.callout > * + *` spacing no longer applies.
+- Keep `render.php` (front end) and `edit.js` (editor) structurally the same, so the editor's DOM matches. For inner blocks directly in the outer element, pass the block props to the inner-blocks hook: `useInnerBlocksProps( useBlockProps() )`.
+- **Outer element:** carries `get_block_wrapper_attributes()` / `useBlockProps()` (supports, anchor id, custom classes). The block's own BEM classes stay on the elements they style.
+- **Text-level blocks:** if a block outputs a `<p>` or `<ul>` but needs block supports on a wrapper, the outer element is a `<div>`.: `<div wrapper><p class="example …">`.
+- When a layout needs an extra element (a grid, a flex row), give it a BEM class (e.g. `.example__columns`, `.example__body`), not `.container`.
+- **Self-closing (void) tags end with ` />`:** `<img … />`, `<br />`, `<hr />`, `<input … />`, `<meta … />`, `<link … />`, `<source … />` (and `<area>`, `<base>`, `<col>`, `<embed>`, `<track>`, `<wbr>`). Never `<img …>`. This applies to every tag we write: `render.php`, patterns, templates, and PHP that prints markup (`printf`/`sprintf` strings in `functions.php` and `mu-plugins/joevernazza/inc/`). JSX in `edit.js` already requires it. Markup that WordPress generates (e.g. `wp_get_attachment_image()`) is left as core outputs it.
+- **All text within a block is in a `<p>`** (or a heading `<h1>`–`<h6>` or `<li>` where that's the right element). Never put text directly in a `<div>`, `<section>`, `<header>`, `<article>`, `<nav>` or similar: inline elements (`<a>`, `<span>`, `<strong>`, `<em>`, `<time>`) go inside the `<p>`, e.g. a standalone link is `<p class="example__cta"><a class="example__link" href="…">…</a></p>`. Applies to `render.php` and `edit.js`. **Exception:** the Button Link block is `<div class="button">` with its `<a class="button__link">` directly inside, no `<p>`.
 
 ### 2. `block.json`
 
@@ -62,7 +63,7 @@ Every custom block wraps its contents in `<div class="container">`, directly ins
 - Every attribute needs a `type` and a `default`. Use `enum` when there's a fixed set of values.
 - `supports`: always set `"html": false`. Only turn on what the design needs (`color`, `typography.fontSize`, `spacing.margin`/`padding`, `anchor`). Don't enable custom colors or font sizes beyond the theme presets.
 - Add an `example` so the inserter preview isn't empty.
-- File references: `"editorScript": "file:./index.js"`, `"style": "file:./style-index.css"`, `"render": "file:./render.php"`. wp-scripts names the compiled CSS `style-index.css`.
+- File references: `"editorScript": "file:./index.js"`, `"editorStyle": "file:./style-index.css"` (an array if the block also has an `editor.scss`: `[ "file:./index.css", "file:./style-index.css" ]`), `"render": "file:./render.php"`. wp-scripts names the compiled CSS `style-index.css`. **Never use `"style"`**: block CSS is editor-only (step 6).
 
 ### 3. Make it dynamic (default)
 
@@ -75,12 +76,12 @@ Only write a static `save()` if the user asks for one. When you change a static 
 ### 4. `index.js` and `edit.js`
 
 - **Imports need explicit `.js` extensions**, e.g. `import Edit from './edit.js';`. `build_tools/package.json` is `"type": "module"`, so webpack requires fully specified paths. Missing extensions fail the build.
-- Use `@wordpress/*` packages only. They're webpack externals (the `wp.*` globals) and are **not installed** in `node_modules`. When you import a `@wordpress/*` package that isn't used yet, add it to `import/core-modules` in `build_tools/eslint.config.cjs`, or ESLint reports `import/no-unresolved`. Currently listed: `blocks`, `block-editor`, `components`, `i18n`, `server-side-render`.
+- Use `@wordpress/*` packages only. They're webpack externals (the `wp.*` globals) and are **not installed** in `node_modules`. When you import a `@wordpress/*` package that isn't used yet, add it to `import/core-modules` in `build_tools/eslint.config.cjs`, or ESLint reports `import/no-unresolved`. Currently listed: `blocks`, `block-editor`, `components`, `core-data`, `data`, `editor`, `element`, `i18n`, `plugins`, `server-side-render`.
 - Always spread `useBlockProps()` on the editor wrapper.
 - Editable text: `RichText` with a `tagName` and a `placeholder`. Limit formatting with `allowedFormats` (`[]` for plain text).
 - Settings: `InspectorControls` → `PanelBody` → controls. Pass `__next40pxDefaultSize` and `__nextHasNoMarginBottom` to `@wordpress/components` controls to avoid deprecation warnings.
 - Inner blocks: `InnerBlocks` with `allowedBlocks` and a `template`.
-- Preview of server-rendered output: `ServerSideRender` from `@wordpress/server-side-render`.
+- Preview of server-rendered output: `ServerSideRender` from `@wordpress/server-side-render`. If the output contains links, wrap it in `<Disabled>` (from `@wordpress/components`): clicking a link in the preview otherwise navigates the editor canvas and crashes the editor.
 - Every user-facing string goes through `__( 'Text', 'joevernazza' )`.
 
 ### 5. `render.php`
@@ -98,14 +99,17 @@ Only write a static `save()` if the user asks for one. When you change a static 
 | Translatable text | `esc_html__()` / `esc_attr__()` |
 
 - Inner blocks arrive already rendered in `$content`. Echo them with a `phpcs:ignore` ("rendered inner blocks").
-- Output nothing when there's nothing to show. To guide editors, show a hint only in the editor preview, using `wp_is_serving_rest_request()` (see `site-info/render.php`).
+- Output nothing when there's nothing to show. To guide editors, show a hint only in the editor preview, using `wp_is_serving_rest_request()`.
 - Define helper functions inside `if ( ! function_exists( 'joevernazza_...' ) )`, because render.php can run many times per page.
 - Read site-wide values with `joevernazza_site_setting( 'key', 'fallback' )`. Never hardcode contact details, IDs or URLs that an editor might change; add a Site Settings field instead (see "Site-wide values" below).
 
-### 6. `style.scss`
+### 6. `style.scss` (editor only) and front-end styles
+
+Block styles load **only in the editor**: `block.json` lists `style-index.css` under `editorStyle`, never `style`. The front end gets no block CSS; each block is styled there by its theme partial, `build_tools/src/scss/components/_<block-name>.scss`, listed in `components/_imports.scss`. When creating a block, create its (empty) component partial too, starting with `@use "mixins/imports" as *;`. Front-end behavior that depends on CSS (e.g. a scroll-snap slider track) must be styled in the component partial.
 
 Only write or change styles when the user has explicitly asked for them (see the CSS rule in `CLAUDE.md`). The conventions below describe how to write styles once you've been asked.
 
+- **Every `.scss` file in `build_tools/src/scss/`** (global or component partial) starts with `@use "mixins/imports" as *;`, after its header comment and before any other `@use`. It gives the file the shared helpers in `src/scss/mixins/`: the `mq()` media query mixin (`@include mq(tablet) { … }` = 768px+, `mq(desktop)` = 1024px+) and the color variables (`$primary_color` …, and the `$colors` map). Sass modules don't share members between files, so each file loads it; the line resolves from any folder. New helpers go in `mixins/` and are forwarded from `mixins/_imports.scss`; files inside `mixins/` don't load it themselves. New partials also go in their folder's `_imports.scss`. Block `style.scss` files don't need the line: the blocks build adds it automatically.
 - **BEM class names:** `.block`, `.block__element`, `.block--modifier`, lowercase. Stylelint enforces this.
 - Use theme tokens with a fallback, never raw values: `var(--wp--preset--color--primary, #1e293b)`, `var(--wp--preset--spacing--40, 24px)`, `var(--wp--preset--font-size--small)`.
 - Keep spacing inside the block. Spacing between blocks comes from the layout's `blockGap`.
@@ -114,7 +118,7 @@ Only write or change styles when the user has explicitly asked for them (see the
 ### 7. Accessibility (required, WCAG 2.2 AA)
 
 - **Semantic elements:** use `<section>`, `<aside>`, `<nav>`, `<ul>`/`<ol>`, `<button>` and `<time datetime>` for their purpose. Use `<button>` for actions and `<a href>` for navigation. Never put a click handler on a `<div>`.
-- **Headings follow the page outline:** one `<h1>` per page (the hero on the front page, or `post-title` in `page.html`). Sections use `<h2>`, and items inside a section use `<h3>`. If a block outputs a heading, make its level an attribute when it could be used at different depths.
+- **Headings follow the page outline:** one `<h1>` per page (the Sticky Left Side headline on the front page and portfolio entries, or `post-title` in `page.html`). Sections use `<h2>`, and items inside a section use `<h3>`. If a block outputs a heading, make its level an attribute when it could be used at different depths.
 - **Accessible names:**
   - Every control has a visible label or an `aria-label`.
   - Lists and regions that need a name get `aria-label`, e.g. `<ul aria-label="Social media">`.
@@ -137,7 +141,7 @@ Only write or change styles when the user has explicitly asked for them (see the
 </section>
 <!-- /wp:group -->
 
-<!-- wp:joevernazza/site-info {"part":"contact","fontSize":"small"} /-->
+<!-- wp:joevernazza/example {"fontSize":"small"} /-->
 ```
 
 - **The attributes in the comment must match the saved HTML.** Static core blocks are validated by re-running `save()` from the comment's attributes. If the HTML has a class, tag or attribute that the comment doesn't describe, the editor marks the block invalid.
@@ -172,7 +176,7 @@ Inline `style` values are a last resort; prefer adding a preset to `theme.json`.
 - Text: `core/heading`, `core/paragraph`, `core/list` + `core/list-item`, `core/buttons` + `core/button`, `core/image`, `core/separator`.
 - **Don't use `core/html` or `core/freeform` for content.** Editors can't edit them safely.
 - Lists are `core/list` → one `core/list-item` per `<li>`. Lists are not paragraphs with line breaks.
-- Wrap each page section in a `core/group` with `"tagName":"section"`, or in the **Section** block (`joevernazza/section`) when you need the inner `.container` wrapper.
+- Wrap each page section in a `core/group` with `"tagName":"section"`, or in the **Section** block (`joevernazza/section`), a plain `<section>` with an anchor and custom classes.
 - Add `"className":"is-style-reveal"` to a Group or Separator to fade it in on scroll. This is the theme's "Reveal on scroll" block style. Don't add animation classes per element.
 - Some blocks are removed by pages-only mode (`inc/pages-only.php`: `allowed_block_types_all`) and must not be used. These include `core/latest-posts`, `core/comments`, `core/post-author`, `core/post-terms`, `core/archives`, `core/categories`, `core/tag-cloud`, `core/rss`, `core/calendar` and `core/loginout`.
 
@@ -195,38 +199,44 @@ Header fields:
 ```
 
 - **Don't create full-page patterns** (`Block Types: core/post-content`) unless the user asks. WordPress shows every full-page pattern in a "Choose a pattern" screen whenever a page is added, and they were removed from this site for that reason. Build section patterns instead.
-- **Patterns used only by template parts:** add `Inserter: no` (e.g. `header`, `footer`).
+- **Patterns used only by template parts:** add `Inserter: no` (e.g. `footer`).
 - **PHP in patterns runs once, when the pattern is inserted** (or once per request while a template part is unedited). After someone edits that template in the Site Editor, the output is frozen as static HTML. So:
   - Use PHP only for values that are fine to freeze: `get_theme_file_uri()` image paths, translated strings, the site name in starter content.
-  - For values that must stay current (Site Settings, the year, menu lookups), use a **dynamic block**: the Site Info block, or a new one.
+  - For values that must stay current (Site Settings, the year, menu lookups), use a **dynamic block**.
 - Escape PHP output in patterns exactly as in render.php, and prefix PHP variables with `$joevernazza_`.
 - Template parts (`parts/*.html`) contain only `<!-- wp:pattern {"slug":"joevernazza/<name>"} /-->` so their markup lives in a PHP pattern.
 
 ### Templates (`templates/*.html`)
 
-- Every template is header part → `<main>` group → footer part:
+- Every template is the `sticky-left-side` template part (the site header, a `<header>` from the Sticky Left Side block) → `<main>` group → footer part. The part uses `"tagName":"div"`, because the block already outputs the `<header>`, and the theme removes that `div` on the front end (`joevernazza_unwrap_template_part()` in `functions.php`), so the `<header>` is a direct child of `.wp-site-blocks`:
 
 ```html
-<!-- wp:template-part {"slug":"header","tagName":"header"} /-->
-<!-- wp:group {"tagName":"main","className":"site-main","layout":{"type":"constrained"}} -->
-<main class="wp-block-group site-main">...</main>
+<!-- wp:group {"metadata":{"name":"Site container"},"className":"container","layout":{"type":"default"}} -->
+<div class="wp-block-group container">
+	<!-- wp:template-part {"slug":"sticky-left-side","area":"header","tagName":"div"} /-->
+	<!-- wp:group {"tagName":"main","className":"site-main","layout":{"type":"constrained"}} -->
+	<main class="wp-block-group site-main">...</main>
+	<!-- /wp:group -->
+</div>
 <!-- /wp:group -->
+
 <!-- wp:template-part {"slug":"footer","tagName":"footer"} /-->
 ```
+- The header and `<main>` sit inside the **"Site container"** Group, which the theme outputs as a plain `<div class="container">` (`joevernazza_clean_site_container()` in `functions.php`, matched by the Group's name). The footer part comes after it, outside the container, so the front end is `.wp-site-blocks > .container > header, main` followed by `.wp-site-blocks > footer`. Keep that name on the Group in every template.
 - Keep exactly one `<main>`. Core's skip link targets it, and the theme moves focus onto it.
-- `page.html` outputs `post-title` as the `<h1>`. `front-page.html` and `page-no-title.html` don't, because their content starts with its own `<h1>`.
+- `page.html` outputs `post-title` as the `<h1>`. `front-page.html`, `single-portfolio.html` and `page-no-title.html` don't: on the front page and portfolio entries the Sticky Left Side headline is the `<h1>`, and `page-no-title` pages start their content with their own `<h1>`.
 
 ### Menus
 
-- The header's Navigation block uses the `wp_navigation` post with the slug `main-menu`, found by slug in `patterns/header.php`. Never hardcode a `ref` ID: it differs on every site and every database.
-- Edit menu items in Appearance → Editor → Navigation, not in code.
+- Menus are the **Menu** block (`joevernazza/menu`): its items are stored in the block, so they're edited by selecting it. Don't use core's Navigation block.
+- If you ever do use core Navigation, find its `wp_navigation` post by slug; never hardcode a `ref` ID: it differs on every site and every database.
 
 ## Site-wide values
 
 To add an editable site-wide value (header CTA, opening hours, an extra social network):
-1. Add a field to `joevernazza_site_settings_fields()` in `inc/site-settings.php`, under the right section. If none of the existing types fit, add a `case` to `joevernazza_site_settings_sanitize()`. Existing types: `text`, `email`, `url`, `gtm`, `verification`, `code`.
+1. Add a field to `joevernazza_site_settings_fields()` in `inc/site-settings.php`, under the right section. If none of the existing types fit, add a `case` to `joevernazza_site_settings_sanitize()`. Existing types: `text`, `email`, `url`, `gtm`, `verification`, `code`, `checkbox` (stored as `"1"` or nothing; set `checkbox_label` for the text beside the box).
 2. Read it with `joevernazza_site_setting( 'key' )`.
-3. Show it on the front end with a dynamic block. Extend Site Info's `part` enum and `render.php`, or create a new block. Don't use PHP in a pattern (see above).
+3. Show it on the front end with a dynamic block. Don't use PHP in a pattern (see above).
 
 ## Before you finish
 
@@ -244,5 +254,5 @@ npm run test:a11y      # axe-core WCAG 2.2 AA + keyboard checks (site must be ru
 - **Open the block or pattern in the editor** and confirm there's no "unexpected or invalid content" warning. Lint can't catch invalid markup. Also confirm the front end renders correctly with JavaScript disabled.
 - For a new block, insert it on a draft page at desktop and mobile widths, then delete the draft.
 - Check `docker compose logs wordpress` for PHP warnings (WP_DEBUG is on locally).
-- Confirm the block has its inner `.container` on the front end and in the editor.
+- Confirm the block's markup matches between the front end and the editor.
 - Mention the new block or pattern in `README.md` under Architecture.

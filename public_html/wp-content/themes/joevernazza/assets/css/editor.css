@@ -1,0 +1,41 @@
+/*
+ * Editor-only styles (add_editor_style in functions.php). Not built: edit
+ * this file directly. The front end never loads it.
+ *
+ * A 1px #ccc line between neighbouring Section blocks, with 50px of space
+ * above and below it.
+ *
+ * Every text, heading, link and button label in the editor canvas is black,
+ * whatever theme.json or a block's colour setting says. Backgrounds are left
+ * alone.
+ *
+ * WordPress rewrites "body" to ".editor-styles-wrapper" (the canvas). The
+ * :not(#_) adds an id's worth of specificity, so this wins over the theme's
+ * class-based colour rules without !important.
+ */
+body:not(#_),
+body *:not(#_) {
+	color: #000;
+}
+
+.wp-block-joevernazza-section + .wp-block-joevernazza-section {
+	margin-top: 50px; /* Space above the line. */
+	padding-top: 50px; /* Space below the line. */
+	border-top: 1px solid #ccc;
+}
+
+/* A 1px #dedede line after each Experience block, 25px above and below. */
+.wp-block-joevernazza-experience {
+	margin-bottom: 25px; /* Space below the line. */
+	padding-bottom: 25px; /* Space above the line. */
+	border-bottom: 1px solid #dedede;
+}
+
+/* Button block: no background color and no padding, whatever theme.json
+   or the block's own color/spacing settings say (text is black, above).
+   :not(#_) wins over those class-based rules without !important. */
+body .wp-block-button__link:not(#_),
+body .wp-element-button:not(#_) {
+	padding: 0;
+	background: none;
+}

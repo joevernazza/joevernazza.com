@@ -18,12 +18,12 @@
 				{
 					"slug": "primary",
 					"name": "Primary",
-					"color": "#1e293b"
+					"color": "#1b4965"
 				},
 				{
 					"slug": "secondary",
 					"name": "Secondary",
-					"color": "#475569"
+					"color": "#62b6cb"
 				},
 				{
 					"slug": "tertiary",
@@ -33,12 +33,12 @@
 				{
 					"slug": "accent",
 					"name": "Accent",
-					"color": "#cbd5e1"
+					"color": "#5fa8d3"
 				},
 				{
 					"slug": "light",
 					"name": "Light",
-					"color": "#f8fafc"
+					"color": "#cae9ff"
 				},
 				{
 					"slug": "white",
@@ -54,26 +54,62 @@
 			"fluid": true,
 			"fontFamilies": [
 				{
-					"slug": "rubik",
-					"name": "Rubik",
-					"fontFamily": "Rubik, system-ui, sans-serif",
+					"slug": "inter",
+					"name": "Inter",
+					"fontFamily": "Inter, system-ui, sans-serif",
 					"fontFace": [
 						{
-							"fontFamily": "Rubik",
+							"fontFamily": "Inter",
 							"fontStyle": "normal",
-							"fontWeight": "300 900",
+							"fontWeight": "300",
 							"fontDisplay": "swap",
 							"src": [
-								"file:./assets/fonts/rubik/rubik-latin-wght-normal.woff2"
+								"file:./assets/fonts/inter/inter-latin-300-normal.woff2"
 							]
 						},
 						{
-							"fontFamily": "Rubik",
+							"fontFamily": "Inter",
 							"fontStyle": "italic",
-							"fontWeight": "300 900",
+							"fontWeight": "300",
 							"fontDisplay": "swap",
 							"src": [
-								"file:./assets/fonts/rubik/rubik-latin-wght-italic.woff2"
+								"file:./assets/fonts/inter/inter-latin-300-italic.woff2"
+							]
+						},
+						{
+							"fontFamily": "Inter",
+							"fontStyle": "normal",
+							"fontWeight": "500",
+							"fontDisplay": "swap",
+							"src": [
+								"file:./assets/fonts/inter/inter-latin-500-normal.woff2"
+							]
+						},
+						{
+							"fontFamily": "Inter",
+							"fontStyle": "italic",
+							"fontWeight": "500",
+							"fontDisplay": "swap",
+							"src": [
+								"file:./assets/fonts/inter/inter-latin-500-italic.woff2"
+							]
+						},
+						{
+							"fontFamily": "Inter",
+							"fontStyle": "normal",
+							"fontWeight": "700",
+							"fontDisplay": "swap",
+							"src": [
+								"file:./assets/fonts/inter/inter-latin-700-normal.woff2"
+							]
+						},
+						{
+							"fontFamily": "Inter",
+							"fontStyle": "italic",
+							"fontWeight": "700",
+							"fontDisplay": "swap",
+							"src": [
+								"file:./assets/fonts/inter/inter-latin-700-italic.woff2"
 							]
 						}
 					]
@@ -197,8 +233,9 @@
 			}
 		},
 		"typography": {
-			"fontFamily": "var:preset|font-family|rubik",
+			"fontFamily": "var:preset|font-family|inter",
 			"fontSize": "var:preset|font-size|small",
+			"fontWeight": "300",
 			"lineHeight": "1.4"
 		},
 		"elements": {
@@ -272,7 +309,7 @@
 					"radius": "4px"
 				},
 				"typography": {
-					"fontWeight": "600"
+					"fontWeight": "500"
 				},
 				":hover": {
 					"color": {
@@ -323,8 +360,8 @@
 	},
 	"templateParts": [
 		{
-			"name": "header",
-			"title": "Header",
+			"name": "sticky-left-side",
+			"title": "Sticky Left Side",
 			"area": "header"
 		},
 		{

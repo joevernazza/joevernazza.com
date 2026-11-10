@@ -74,7 +74,19 @@ function joevernazza_seo_meta() {
 		'twitter:card'   => 'summary',
 	);
 
-	$image = is_singular() ? get_the_post_thumbnail_url( get_queried_object_id(), 'large' ) : '';
+	$image = '';
+	if ( is_singular() ) {
+		$image = (string) get_the_post_thumbnail_url( get_queried_object_id(), 'large' );
+
+		/**
+		 * Filters the singular page's sharing image (og:image) before the site
+		 * icon fallback.
+		 *
+		 * @param string $image   Image URL, or '' if none yet.
+		 * @param int    $post_id Queried post ID.
+		 */
+		$image = apply_filters( 'joevernazza_share_image', $image, get_queried_object_id() );
+	}
 	if ( ! $image ) {
 		$image = get_site_icon_url( 512 );
 	}
@@ -88,7 +100,7 @@ function joevernazza_seo_meta() {
 		}
 		$attr = str_starts_with( $key, 'og:' ) ? 'property' : 'name';
 		$val  = in_array( $key, array( 'og:url', 'og:image' ), true ) ? esc_url( $value ) : esc_attr( $value );
-		printf( '<meta %1$s="%2$s" content="%3$s">' . "\n", esc_attr( $attr ), esc_attr( $key ), $val ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above.
+		printf( '<meta %1$s="%2$s" content="%3$s" />' . "\n", esc_attr( $attr ), esc_attr( $key ), $val ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above.
 	}
 }
 add_action( 'wp_head', 'joevernazza_seo_meta', 2 );

@@ -23,4 +23,7 @@ require_once JOEVERNAZZA_SITE_DIR . '/inc/security.php';
 require_once JOEVERNAZZA_SITE_DIR . '/inc/seo.php';
 require_once JOEVERNAZZA_SITE_DIR . '/inc/analytics.php';
 require_once JOEVERNAZZA_SITE_DIR . '/inc/htaccess.php';
+require_once JOEVERNAZZA_SITE_DIR . '/inc/portfolio.php';
 require_once JOEVERNAZZA_SITE_DIR . '/inc/blocks.php';
+require_once JOEVERNAZZA_SITE_DIR . '/inc/template-part-links.php';
+require_once JOEVERNAZZA_SITE_DIR . '/inc/svg-uploads.php';

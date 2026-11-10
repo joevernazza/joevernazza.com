@@ -1,0 +1,16 @@
+{
+	"name": "joevernazza/site-plugin",
+	"description": "Runtime PHP dependencies of the joevernazza.com must-use plugin. Installed into ./vendor (git-ignored) locally and by the deploy workflow.",
+	"type": "project",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"php": ">=8.1",
+		"enshrined/svg-sanitize": "^0.21"
+	},
+	"config": {
+		"optimize-autoloader": true,
+		"platform": {
+			"php": "8.1"
+		}
+	}
+}

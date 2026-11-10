@@ -20,7 +20,7 @@ define( 'DB_COLLATE', '' );
 // ** Salts: generate fresh ones at https://api.wordpress.org/secret-key/1.1/salt/ ** //
 // define( 'AUTH_KEY', '...' ); ...and the other seven.
 
-$table_prefix = 'joevernazza_'; // Non-default prefix, set at install time.
+$table_prefix = 'wp_'; // Matches the local database the site was migrated from.
 
 // ** Environment ** //
 // Read with wp_get_environment_type(); the must-use plugin only loads
@@ -45,10 +45,14 @@ define( 'SCRIPT_DEBUG', false );
 
 // ** Code changes ship through git deploys only ** //
 define( 'DISALLOW_FILE_EDIT', true );   // No theme/plugin editors in wp-admin.
-define( 'DISALLOW_FILE_MODS', false );  // true also blocks installs/updates from wp-admin.
+// Core is in git and deployed, so updates happen locally and ship with a
+// push. true blocks updates and installs from wp-admin, which the next
+// deploy would otherwise undo (it puts back the committed version).
+define( 'DISALLOW_FILE_MODS', true );
 
-// ** Updates ** //
-define( 'WP_AUTO_UPDATE_CORE', 'minor' ); // Security/maintenance releases only.
+// ** Updates: off. Update core locally, commit, push. ** //
+define( 'AUTOMATIC_UPDATER_DISABLED', true );
+define( 'WP_AUTO_UPDATE_CORE', false );
 
 // ** Housekeeping ** //
 define( 'WP_POST_REVISIONS', 10 );
