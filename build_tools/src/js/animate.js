@@ -1,7 +1,7 @@
 /**
  * Scroll-reveal engine for CSS animations.
  *
- * Every element with the `animate` class gets the `active` class once it
+ * Every element with the `animate` class gets the `animate-active` class once it
  * enters the viewport (or every element matching `selector`). The animation
  * itself lives in CSS (see _animate.scss).
  *
@@ -18,14 +18,18 @@
  * @param {string} [options.activeClass] Class added when an element is revealed.
  * @param {number} [options.stagger]     Minimum ms between reveals queued together.
  * @param {number} [options.maxDelay]    Rough max ms to drain a long queue.
+ * @param {string} [options.first]       Container whose elements reveal before
+ *                                       any others queued with them (e.g. the
+ *                                       header before the main content).
  * @param {string} [options.rootMargin]  IntersectionObserver root margin.
  * @param {number} [options.threshold]   IntersectionObserver threshold.
  */
 export function initAnimations( {
 	selector = '.animate',
-	activeClass = 'active',
+	activeClass = 'animate-active',
 	stagger = 200, // ms between elements revealed together
 	maxDelay = 1500, // rough max time to drain the queue; long queues use a tighter step
+	first = null,
 	rootMargin = '0px 0px -10% 0px', // trigger slightly before the bottom edge
 	threshold = 0,
 } = {} ) {
@@ -76,10 +80,18 @@ export function initAnimations( {
 			} // already queued
 			observer.unobserve( el ); // animate once
 			const r = el.getBoundingClientRect();
-			waiting.push( { el, top: r.top + window.scrollY, left: r.left } );
+			waiting.push( {
+				el,
+				group: first && el.closest( first ) ? 0 : 1,
+				top: r.top + window.scrollY,
+				left: r.left,
+			} );
 		}
-		// Top-to-bottom, then left-to-right, in page (not viewport) coordinates.
-		waiting.sort( ( a, b ) => a.top - b.top || a.left - b.left );
+		// The `first` container's elements, then the rest; each top-to-bottom,
+		// then left-to-right, in page (not viewport) coordinates.
+		waiting.sort(
+			( a, b ) => a.group - b.group || a.top - b.top || a.left - b.left
+		);
 		if ( ! timer ) {
 			tick();
 		}
@@ -120,6 +132,27 @@ export function initAnimations( {
 	};
 	window.addEventListener( 'scroll', checkBottom, { passive: true } );
 	window.addEventListener( 'resize', checkBottom );
+
+	// Keyboard focus moving into an element that isn't revealed yet shows it
+	// at once, skipping the queue, so the focused item is never invisible
+	// (WCAG 2.4.7).
+	document.addEventListener( 'focusin', ( event ) => {
+		for ( const el of elements ) {
+			if (
+				! el.contains( event.target ) ||
+				el.classList.contains( activeClass )
+			) {
+				continue;
+			}
+			pending.delete( el );
+			observer.unobserve( el );
+			const index = waiting.findIndex( ( item ) => item.el === el );
+			if ( index !== -1 ) {
+				waiting.splice( index, 1 );
+			}
+			reveal( el );
+		}
+	} );
 
 	elements.forEach( ( el ) => observer.observe( el ) );
 	checkBottom(); // short pages that don't scroll at all

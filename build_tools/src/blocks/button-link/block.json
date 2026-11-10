@@ -1,0 +1,40 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "joevernazza/button-link",
+	"version": "1.0.0",
+	"title": "Button Link",
+	"category": "design",
+	"icon": "button",
+	"description": "A link styled as a button: <div class=\"button\"> with the link inside.",
+	"keywords": [ "button", "link", "cta" ],
+	"textdomain": "joevernazza",
+	"attributes": {
+		"text": {
+			"type": "string",
+			"default": ""
+		},
+		"url": {
+			"type": "string",
+			"default": ""
+		},
+		"opensInNewTab": {
+			"type": "boolean",
+			"default": false
+		}
+	},
+	"supports": {
+		"html": false,
+		"anchor": true,
+		"className": true
+	},
+	"example": {
+		"attributes": {
+			"text": "View résumé",
+			"url": "#"
+		}
+	},
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./style-index.css",
+	"render": "file:./render.php"
+}

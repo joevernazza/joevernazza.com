@@ -1,0 +1,26 @@
+// ---------------------------------------------------------------
+// Color classes, one set per color in $colors (mixins/_colors.scss):
+//   .has-<slug>-color             text color
+//   .has-<slug>-background-color  background color
+//   .has-<slug>-border-color      border color
+// Same names as WordPress's preset classes, so a color picked on a block
+// in the editor (e.g. has-primary-background-color) works on the front
+// end, where WordPress's global styles aren't loaded. Also usable by hand.
+// ---------------------------------------------------------------
+
+@use "mixins/imports" as *;
+
+@each $name, $value in $colors {
+
+	.has-#{$name}-color {
+		color: $value;
+	}
+
+	.has-#{$name}-background-color {
+		background-color: $value;
+	}
+
+	.has-#{$name}-border-color {
+		border-color: $value;
+	}
+}

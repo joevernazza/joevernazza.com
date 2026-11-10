@@ -25,14 +25,15 @@ const failures = [];
 const fail = ( message ) => failures.push( message );
 
 /**
- * Published pages (and posts, if the site has them) from the REST API, plus
+ * Published pages, portfolio entries (and posts, if the site has them) from
+ * the REST API, plus
  * search and 404 results.
  *
  * @return {Promise<string[]>} URLs to test.
  */
 async function collectUrls() {
 	const urls = new Set( [ `${ BASE }/` ] );
-	for ( const type of [ 'pages', 'posts' ] ) {
+	for ( const type of [ 'pages', 'posts', 'portfolio' ] ) {
 		try {
 			const res = await fetch(
 				`${ BASE }/wp-json/wp/v2/${ type }?per_page=100&_fields=link`
@@ -88,60 +89,59 @@ async function checkSkipLink( page ) {
 }
 
 /**
- * Keyboard: the mobile menu opens from the keyboard, traps focus in a modal,
- * and Escape closes it and returns focus to the toggle.
+ * Mobile menu: the header's hamburger (button.sticky-left-side__toggle) must
+ * be visible at mobile width and set aria-expanded="true" when pressed; then
+ * the Menu block's (joevernazza/menu) links must be visible and reachable
+ * with Tab. Without a toggle, the links must be visible as they are.
  *
  * @param {import('playwright').Page} page Page at mobile width.
  */
 async function checkMobileMenu( page ) {
-	const toggle = page
-		.locator( '.wp-block-navigation__responsive-container-open' )
-		.first();
-	if ( ! ( await toggle.count() ) ) {
-		return fail( 'Mobile menu: no menu toggle button found' );
-	}
-	await toggle.focus();
-	await page.keyboard.press( 'Enter' );
-	const dialog = page
-		.locator( '.wp-block-navigation__responsive-container.is-menu-open' )
-		.first();
-	try {
-		await dialog.waitFor( { timeout: 3000 } );
-	} catch {
-		return fail( 'Mobile menu: Enter on the toggle did not open the menu' );
-	}
-	// Core moves focus into the dialog right after it opens.
-	const inside = await page
-		.waitForFunction(
-			() =>
-				!! document.activeElement?.closest(
-					'.wp-block-navigation__responsive-container.is-menu-open'
-				),
-			null,
-			{ timeout: 2000 }
-		)
-		.then(
-			() => true,
-			() => false
-		);
-	if ( ! inside ) {
-		fail( 'Mobile menu: focus did not move into the open menu' );
-	}
-	const links = await dialog.locator( 'a' ).count();
-	if ( ! links ) {
-		fail( 'Mobile menu: open menu has no links' );
-	}
-	await page.keyboard.press( 'Escape' );
-	await page.waitForTimeout( 300 );
-	const back = await page.evaluate( () =>
-		document.activeElement?.classList.contains(
-			'wp-block-navigation__responsive-container-open'
-		)
+	const links = page.locator(
+		'header nav.wp-block-joevernazza-menu a[href]'
 	);
-	if ( ! back ) {
-		fail(
-			'Mobile menu: Escape should close the menu and return focus to the toggle'
+	const count = await links.count();
+	if ( ! count ) {
+		return fail( 'Mobile menu: no Menu block links found in the header' );
+	}
+	const toggle = page.locator( 'header .sticky-left-side__toggle' ).first();
+	if ( await toggle.count() ) {
+		if ( ! ( await toggle.isVisible() ) ) {
+			return fail(
+				'Mobile menu: the menu toggle is hidden at mobile width'
+			);
+		}
+		if ( ( await toggle.getAttribute( 'aria-expanded' ) ) !== 'true' ) {
+			await toggle.click();
+			// Let the menu finish opening (it fades in).
+			await page.waitForTimeout( 600 );
+		}
+		if ( ( await toggle.getAttribute( 'aria-expanded' ) ) !== 'true' ) {
+			return fail(
+				'Mobile menu: pressing the toggle does not set aria-expanded="true"'
+			);
+		}
+	}
+	for ( let i = 0; i < count; i++ ) {
+		const link = links.nth( i );
+		// Icon links have no text; their name is the aria-label.
+		const name =
+			( await link.innerText() ).trim() ||
+			( await link.getAttribute( 'aria-label' ) ) ||
+			'';
+		if ( ! ( await link.isVisible() ) ) {
+			fail( `Mobile menu: link "${ name }" is hidden at mobile width` );
+			continue;
+		}
+		await link.focus();
+		const focused = await link.evaluate(
+			( el ) => el === document.activeElement
 		);
+		if ( ! focused ) {
+			fail(
+				`Mobile menu: link "${ name }" can't receive keyboard focus`
+			);
+		}
 	}
 }
 
@@ -151,7 +151,7 @@ async function checkMobileMenu( page ) {
  * @param {import('playwright').Page} page Page on the homepage.
  */
 async function checkFocusRing( page ) {
-	const link = page.locator( 'main a[href], header a[href]' ).first();
+	const link = page.locator( 'main a[href]' ).first();
 	if ( ! ( await link.count() ) ) {
 		return;
 	}

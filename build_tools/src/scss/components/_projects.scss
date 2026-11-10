@@ -1,0 +1,56 @@
+// Front-end styles for the Projects block (joevernazza/projects). The
+// block's own style.scss loads only in the editor.
+
+@use "mixins/imports" as *;
+
+.projects{
+    position: relative;
+    left: -24px;
+    width: calc(100% + 48px);
+
+    @include mq("desktop"){
+        left: unset;
+        width: unset;
+    }
+
+    UL.projects__list{
+        padding: 0px;
+        margin: 0px;
+        list-style: none;
+
+        LI.projects__item{
+            display: flex;
+            gap: 20px;
+            padding: 18px 24px;
+            background-color: rgba(15, 20, 39, 0);
+            transition: background-color 0.25s ease-in-out;
+
+            &.active{
+                background-color: rgba(15, 20, 39, 1);
+            }
+
+            .projects__image{
+                flex-basis: 136px;
+                height: 114px;
+            }
+
+            .projects__body{
+                display: flex;
+                flex-direction: column;
+                flex: 1;
+
+                .projects__desc{
+                    flex: 1;
+
+                    .projects__separator{
+                        font-weight: 700;
+                    }
+
+                    .projects__brand{
+                        font-weight: 700;
+                    }
+                }
+            }
+        }
+    }
+}

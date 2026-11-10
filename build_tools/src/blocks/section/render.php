@@ -3,7 +3,7 @@
  * Server render for joevernazza/section.
  *
  * Outputs <section> (with the block's anchor id and extra classes from the
- * Advanced panel) and an inner .container around the inner blocks.
+ * Advanced panel) directly around the inner blocks.
  *
  * @package joevernazza
  *
@@ -17,7 +17,5 @@ if ( '' === trim( $content ) ) {
 }
 ?>
 <section <?php echo get_block_wrapper_attributes(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped by core. ?>>
-	<div class="container">
-		<?php echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- rendered inner blocks. ?>
-	</div>
+	<?php echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- rendered inner blocks. ?>
 </section>

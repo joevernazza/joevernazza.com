@@ -1,0 +1,92 @@
+// ---------------------------------------------------------------
+// Typography
+// Font families, sizes, weights and line heights for the body and headings
+// come from theme.json (settings.typography and styles). Use this file only
+// for what theme.json can't express, with its presets:
+//   var(--wp--preset--font-size--large)
+//   var(--wp--preset--font-family--<slug>)
+// ---------------------------------------------------------------
+
+@use "mixins/imports" as *;
+
+h1, h2, h3, h4, h5, h6, p, ul, ol, li{
+    margin: 0px;
+}
+
+h1,
+.header1{
+    font-size: 30px;
+    line-height: 28px;
+    letter-spacing: -0.3px;
+    color: $light_color;
+    margin-bottom: 12px;
+
+    @include mq(desktop) {
+        font-size: 42px;
+        line-height: 38px;
+    }
+}
+
+h2,
+.header2{
+    font-size: 16px;
+    font-weight: 400;
+    color: $tertiary_color;
+    margin-bottom: 12px;
+
+    @include mq(desktop) {
+        font-size: 18px;
+    }
+}
+
+h3{
+    font-size: 15px;
+    letter-spacing: 0.25px;
+    margin-bottom: 8px;
+
+    @include mq("desktop"){
+        margin-bottom: 12px;
+    }
+}
+
+a{
+    color: inherit;
+}
+
+p{
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: -.05px;
+    font-weight: 300;
+    margin-bottom: 8px;
+
+    @include mq(desktop) {
+        font-size: 16px;
+        line-height: 24px;
+    }
+
+    &:last-child{
+        margin-bottom: 0px;
+    }
+
+    &.small{
+        font-size: 12px;
+        line-height: 18px;
+
+        @include mq(desktop) {
+            font-size: 14px;
+            line-height: 20px;
+        }
+    }
+
+    &.very-small{
+        font-size: 12px;
+        line-height: 18px;
+    }
+
+    &.has-x-large-font-size{
+        font-size: 32px;
+        line-height: 30px;
+        margin-bottom: 8px;
+    }
+}

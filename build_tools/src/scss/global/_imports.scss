@@ -1,7 +1,12 @@
 // Loads every global partial. Add new global files here.
-// Base typography, colors and spacing come from theme.json; these partials
-// only cover what theme.json can't express.
+// The front end gets no WordPress global styles (only theme.json's CSS
+// variables), so these partials style the site-wide base.
+@use "mixins/imports" as *;
 @use "global";
-@use "layout";
+@use "color-classes";
+@use "typography";
+@use "hamburgers";
+@use "header";
+@use "footer";
 @use "animate";
 @use "a11y";

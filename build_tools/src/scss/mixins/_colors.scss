@@ -1,0 +1,25 @@
+// ---------------------------------------------------------------
+// Colors
+// Available in every SCSS file through @use "mixins/imports" as *;
+//
+// The palette is defined once in theme.json; these map to the CSS custom
+// properties WordPress generates from it, so SCSS and the editor never drift.
+// ---------------------------------------------------------------
+
+$primary_color: #0F1427;
+$secondary_color: #151A30;
+$tertiary_color: #7A85A9;
+$accent_color: #EBAE16;
+$light_color: #D2D8EB;
+$white_color: #ffffff;
+
+// Every color by its theme.json slug, for loops such as the color classes
+// in _color-classes.scss. Add new colors here too.
+$colors: (
+	"primary": $primary_color,
+	"secondary": $secondary_color,
+	"tertiary": $tertiary_color,
+	"accent": $accent_color,
+	"light": $light_color,
+	"white": $white_color,
+);

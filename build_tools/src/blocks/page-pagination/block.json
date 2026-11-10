@@ -1,0 +1,21 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "joevernazza/page-pagination",
+	"version": "1.0.0",
+	"title": "Page Pagination",
+	"category": "theme",
+	"icon": "leftright",
+	"description": "Previous and next project links on a portfolio entry, in the order of the home page's Projects list. Used in the Single Portfolio template.",
+	"keywords": [ "pagination", "previous", "next", "portfolio", "projects" ],
+	"textdomain": "joevernazza",
+	"attributes": {},
+	"usesContext": [ "postId", "postType" ],
+	"supports": {
+		"html": false
+	},
+	"example": {},
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./style-index.css",
+	"render": "file:./render.php"
+}

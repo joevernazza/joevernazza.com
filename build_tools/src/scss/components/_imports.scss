@@ -1,0 +1,11 @@
+// Loads every component partial. Add new component files here.
+// Components are styles for reusable pieces of the site (one file each);
+// global/ holds the site-wide base.
+@use "mixins/imports" as *;
+@use "button-link";
+@use "experience";
+@use "menu";
+@use "page-pagination";
+@use "portfolio-slider";
+@use "projects";
+@use "sticky-left-side";

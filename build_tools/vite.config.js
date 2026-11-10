@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import liveReload from './vite-live-reload.js';
+import { scssLoadPaths } from './scss-globals.js';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const theme = path.resolve(root, '../public_html/wp-content/themes/joevernazza');
@@ -12,6 +13,19 @@ const theme = path.resolve(root, '../public_html/wp-content/themes/joevernazza')
 export default defineConfig({
   root,
   publicDir: false,
+  // Lets any partial load helpers by the same path from any folder:
+  // @use "global/breakpoints" as *; (scss-globals.js)
+  css: {
+    preprocessorOptions: {
+      scss: {
+        // node_modules: packages' Sass (e.g. "hamburgers/_sass/…").
+        loadPaths: [...scssLoadPaths, path.join(root, 'node_modules')],
+        // Hide deprecation warnings from packages' Sass (hamburgers still
+        // uses @import); our own files still warn.
+        quietDeps: true,
+      },
+    },
+  },
   // Only active during `npm run watch` (vite build --watch)
   plugins: [
     liveReload({
