@@ -1,8 +1,94 @@
+name: joevernazza
+
+# Local WordPress: http://localhost:8090  (phpMyAdmin: http://localhost:8091)
+#
+# public_html/ is the web root. Only the theme and must-use plugin are in git;
+# on a fresh clone the WordPress image copies core into public_html on first
+# start (it never overwrites existing wp-content). wp-config.php is generated
+# from the WORDPRESS_* values below and is git-ignored.
+#
+# PHP 8.4 to match production.
+#
+# Images are pinned by digest so every machine runs the same versions.
+# To upgrade: docker pull <tag>, then update the digest (docker image inspect).
+
+x-wp-env: &wp-env
+  WORDPRESS_DB_HOST: db
+  WORDPRESS_DB_NAME: joevernazza
+  WORDPRESS_DB_USER: joevernazza
+  WORDPRESS_DB_PASSWORD: ${DB_PASSWORD:-joevernazza}
+  WORDPRESS_CONFIG_EXTRA: |
+    define( 'WP_ENVIRONMENT_TYPE', 'local' );
+    // Core is in git: no automatic updates, so it only changes on purpose.
+    define( 'AUTOMATIC_UPDATER_DISABLED', true );
+    // Use the address the site is opened from (e.g. http://<Mac's IP>:8090 on
+    // a phone on the same Wi-Fi). WP-CLI has no host: localhost:8090.
+    define( 'WP_HOME', 'http://' . ( $$_SERVER['HTTP_HOST'] ?? 'localhost:8090' ) );
+    define( 'WP_SITEURL', WP_HOME );
+
 services:
-  web:
-    image: php:8.3-apache
+  db:
+    # Match production's engine and major version (create-site --db/--db-version).
+    # mysql:8.4
+    image: mysql@sha256:a81d043930e51745522bd5c430961cf8286f0a23f0a9a2a6e0108f7ea71b0902
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: joevernazza
+      MYSQL_USER: joevernazza
+      MYSQL_PASSWORD: ${DB_PASSWORD:-joevernazza}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      # TCP, not the socket: MySQL's temporary init server only listens on the
+      # socket, so this stays unhealthy until the real server is up.
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${DB_ROOT_PASSWORD:-root}"]
+      interval: 5s
+      retries: 30
+
+  wordpress:
+    # wordpress:php8.4-apache
+    image: wordpress@sha256:418c95d1d7648ce672415f714b88df2cb1d358552e261771508f5d4ced912c01
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
     ports:
       - "8090:80"
+    environment:
+      <<: *wp-env
+      WORDPRESS_DEBUG: 1
     volumes:
-      - ./:/var/www/html
+      - ./public_html:/var/www/html
+
+  # Usage: docker compose run --rm cli wp <command>
+  # `wp db ...` commands use WP-CLI's bundled MariaDB client, which requires
+  # TLS and only works against MariaDB 11.4+ (not MySQL or older MariaDB).
+  # Use scripts/db-export.sh / db-import.sh, or:
+  #   docker compose exec db mysql -uroot -proot joevernazza
+  cli:
+    # wordpress:cli-php8.4
+    image: wordpress@sha256:807d746b7122d004c3d3768d77f221acedbd17b98ffe9646a9388627a36cdbc7
+    profiles: ["cli"]
+    user: "33:33"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      <<: *wp-env
+    volumes:
+      - ./public_html:/var/www/html
+
+  phpmyadmin:
+    # phpmyadmin:latest
+    image: phpmyadmin@sha256:b584de2aba701b0a275c56000abe36f6483b3493d221ee2f7ff005aba85adb66
     restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "8091:80"
+    environment:
+      PMA_HOST: db
+
+volumes:
+  db_data:

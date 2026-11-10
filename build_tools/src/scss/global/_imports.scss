@@ -1,0 +1,12 @@
+// Loads every global partial. Add new global files here.
+// The front end gets no WordPress global styles (only theme.json's CSS
+// variables), so these partials style the site-wide base.
+@use "mixins/imports" as *;
+@use "global";
+@use "color-classes";
+@use "typography";
+@use "hamburgers";
+@use "header";
+@use "footer";
+@use "animate";
+@use "a11y";

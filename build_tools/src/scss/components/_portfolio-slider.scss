@@ -1,0 +1,199 @@
+// Front-end styles for the Portfolio Slider block (joevernazza/portfolio-slider).
+// The block's own style.scss only styles the editor.
+
+@use "mixins/imports" as *;
+
+.portfolio-slider{
+
+    .portfolio-slider__carousel{
+        position: relative;
+        width: 339px;
+        height: 700px;
+        padding: 10px 12px;
+        margin: 0px auto;
+        background: url(/wp-content/themes/joevernazza/assets/images/portfolio-device-mobile.png) no-repeat center / contain;
+
+        @include mq("tablet"){
+            width: 572px;
+            height: 744px;
+            padding: 10px;
+            background: url(/wp-content/themes/joevernazza/assets/images/portfolio-device-tablet.png) no-repeat center / contain;
+        }
+
+        @include mq("desktop"){
+            width: 620px;
+            height: 405px;
+            padding: 16px 70px;
+            background: url(/wp-content/themes/joevernazza/assets/images/portfolio-device-desktop.png) no-repeat center / contain;
+        }
+
+        .portfolio-slider__track{
+            position: relative;
+            display: flex;
+            height: 100%;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            border-radius: 48px;
+
+            @include mq("tablet"){
+                border-radius: 30px;
+            }
+
+            @include mq("desktop"){
+                border-radius: unset;
+            }
+
+            .portfolio-slider__slide{
+                flex: 0 0 100%;
+                margin: 0px;
+                scroll-snap-align: start;
+
+                IMG.portfolio-slider__image{
+                    display: block;
+                    width: 100%;
+                    height: auto;
+                }
+            }
+        }
+
+        // Added by view.js: slides stack in one grid cell; only the active
+        // one (and one sliding out) shows.
+        &.portfolio-slider__carousel--stacked{
+
+            .portfolio-slider__track{
+                display: grid;
+                overflow: hidden;
+
+                .portfolio-slider__slide{
+                    grid-area: 1 / 1;
+                    opacity: 0;
+
+                    &.active{
+                        z-index: 1;
+                        opacity: 1;
+                    }
+                }
+            }
+        }
+
+        // Desktop (view.js): cross-fade, no swipe.
+        &.portfolio-slider__carousel--fade{
+
+            .portfolio-slider__slide{
+
+                @media (prefers-reduced-motion: no-preference) {
+                    transition: opacity 0.25s ease-in-out;
+                }
+            }
+        }
+
+        // Mobile and tablet (view.js): the slides move. The incoming slide
+        // starts at from-next/from-prev and moves to its place; the outgoing
+        // one (is-leaving) moves to to-prev/to-next.
+        &.portfolio-slider__carousel--slide-x,
+        &.portfolio-slider__carousel--slide-y{
+
+            .portfolio-slider__slide{
+
+                @media (prefers-reduced-motion: no-preference) {
+                    transition: transform 0.25s ease-in-out;
+                }
+
+                &.is-leaving,
+                &.from-next,
+                &.from-prev{
+                    opacity: 1;
+                }
+
+                &.is-instant{
+                    transition: none;
+                }
+            }
+        }
+
+        // Tablet: slides in from the right; swipe left/right.
+        &.portfolio-slider__carousel--slide-x{
+
+            .portfolio-slider__track{
+                touch-action: pan-y;
+            }
+
+            .portfolio-slider__slide{
+
+                &.from-next,
+                &.to-next{
+                    transform: translateX(100%);
+                }
+
+                &.from-prev,
+                &.to-prev{
+                    transform: translateX(-100%);
+                }
+            }
+        }
+
+        // Mobile: slides up from below; swipe up/down (so the page doesn't
+        // scroll vertically while swiping on the slider).
+        &.portfolio-slider__carousel--slide-y{
+
+            .portfolio-slider__track{
+                touch-action: pan-x;
+            }
+
+            .portfolio-slider__slide{
+
+                &.from-next,
+                &.to-next{
+                    transform: translateY(100%);
+                }
+
+                &.from-prev,
+                &.to-prev{
+                    transform: translateY(-100%);
+                }
+            }
+        }
+
+        .portfolio-slider__controls{
+            position: absolute;
+            top: 160px;
+            left: 0px;
+            width: 100%;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            display: none;
+
+            @include mq("desktop"){
+                display: block;
+            }
+
+            &[hidden]{
+                display: none;
+            }
+
+            .portfolio-slider__button{
+                width: 20px;
+                padding: 0px;
+                border: 0px;
+                background: none;
+                cursor: pointer;
+
+                @include mq("desktop"){
+                    width: 30px;
+                }
+
+                IMG.portfolio-slider__button-icon{
+                    display: block;
+                    width: 20px;
+
+                    @include mq("desktop"){
+                        width: 30px;
+                    }
+                }
+            }
+        }
+    }
+}

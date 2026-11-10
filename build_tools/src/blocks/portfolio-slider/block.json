@@ -1,0 +1,24 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "joevernazza/portfolio-slider",
+	"version": "1.0.0",
+	"title": "Portfolio Slider",
+	"category": "media",
+	"icon": "images-alt2",
+	"description": "An image slider showing the current portfolio entry's slider images. Used in the Single Portfolio template; images are chosen in the entry's \"Slider images\" panel.",
+	"keywords": [ "portfolio", "slider", "carousel", "gallery", "images" ],
+	"textdomain": "joevernazza",
+	"attributes": {},
+	"usesContext": [ "postId", "postType" ],
+	"supports": {
+		"html": false,
+		"anchor": true,
+		"spacing": { "margin": true }
+	},
+	"example": {},
+	"editorScript": "file:./index.js",
+	"editorStyle": [ "file:./index.css", "file:./style-index.css" ],
+	"viewScript": "file:./view.js",
+	"render": "file:./render.php"
+}

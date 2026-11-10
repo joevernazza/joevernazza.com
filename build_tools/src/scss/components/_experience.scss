@@ -1,0 +1,30 @@
+// Front-end styles for the Experience block (joevernazza/experience). The
+// block's own style.scss loads only in the editor. Its columns use the
+// shared .two-column and .column classes.
+
+@use "mixins/imports" as *;
+
+.experience {
+    display: flex;
+    margin-bottom: 50px;
+    flex-direction: column;
+
+    @include mq("desktop"){
+        gap: 55px;
+        flex-direction: row;
+    }
+
+    .experience__meta{
+
+        @include mq("desktop"){
+            flex-basis: 100px;
+        }
+    }
+
+    .experience__body{
+
+        @include mq("desktop"){
+            flex: 1;
+        }
+    }
+}

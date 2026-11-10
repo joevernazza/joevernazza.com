@@ -1,0 +1,42 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "joevernazza/menu",
+	"version": "1.0.0",
+	"title": "Menu",
+	"category": "design",
+	"icon": "menu",
+	"description": "A list of links you add, reorder and remove in the block's sidebar, output as a <nav>.",
+	"keywords": [ "menu", "navigation", "links", "nav" ],
+	"textdomain": "joevernazza",
+	"attributes": {
+		"items": {
+			"type": "array",
+			"default": [],
+			"items": {
+				"type": "object"
+			}
+		},
+		"label": {
+			"type": "string",
+			"default": ""
+		}
+	},
+	"supports": {
+		"html": false,
+		"anchor": true,
+		"className": true
+	},
+	"example": {
+		"attributes": {
+			"items": [
+				{ "text": "Home", "url": "/" },
+				{ "text": "Portfolio", "url": "/portfolio/" },
+				{ "text": "Contact", "url": "/contact/" }
+			]
+		}
+	},
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./style-index.css",
+	"render": "file:./render.php"
+}

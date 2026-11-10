@@ -1,0 +1,73 @@
+// Editor-only styles: the "Slider images" sidebar panel (panel.js).
+.portfolio-slider-panel__list {
+	display: grid;
+	gap: 12px;
+	margin: 0 0 12px;
+	padding: 0;
+	list-style: none;
+}
+
+.portfolio-slider-panel__slide {
+	display: grid;
+	gap: 8px;
+	margin: 0;
+	padding: 8px;
+	border: 1px solid #e0e0e0;
+	border-radius: 2px;
+}
+
+.portfolio-slider-panel__slide-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+}
+
+.portfolio-slider-panel__actions {
+	display: flex;
+	gap: 2px;
+}
+
+.portfolio-slider-panel__slot {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+}
+
+.portfolio-slider-panel__slot-label {
+	display: grid;
+
+	span {
+		color: #757575;
+		font-size: 11px;
+	}
+}
+
+.portfolio-slider-panel__slot-body {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.portfolio-slider-panel__thumb-button {
+	padding: 0;
+	border: 0;
+	background: none;
+	cursor: pointer;
+}
+
+.portfolio-slider-panel__thumb {
+	display: block;
+	width: 48px;
+	height: 48px;
+	object-fit: cover;
+	border-radius: 2px;
+	background: #f0f0f0;
+}
+
+.portfolio-slider-panel__help {
+	margin: 12px 0 0;
+	color: #757575;
+	font-size: 12px;
+}

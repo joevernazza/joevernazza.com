@@ -1,0 +1,8 @@
+// Shared helpers for every SCSS file: the mq() media query mixin and the
+// color variables. Every file in build_tools/src/scss (outside mixins/)
+// starts with:
+//   @use "mixins/imports" as *;
+// Block style.scss files get it automatically (build_tools/scss-globals.js).
+// Add new helper partials to this folder and forward them here.
+@forward "breakpoints";
+@forward "colors";

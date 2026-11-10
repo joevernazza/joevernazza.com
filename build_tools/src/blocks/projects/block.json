@@ -1,0 +1,41 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "joevernazza/projects",
+	"version": "1.0.0",
+	"title": "Projects",
+	"category": "widgets",
+	"icon": "portfolio",
+	"description": "A list of portfolio entries you pick and order: thumbnail, title and brand, a short excerpt and a View Project link.",
+	"keywords": [ "projects", "portfolio", "work", "list" ],
+	"textdomain": "joevernazza",
+	"attributes": {
+		"entries": {
+			"type": "array",
+			"default": [],
+			"items": {
+				"type": "integer"
+			}
+		},
+		"headingLevel": {
+			"type": "integer",
+			"default": 3,
+			"enum": [ 2, 3, 4 ]
+		},
+		"excerptLength": {
+			"type": "integer",
+			"default": 120
+		}
+	},
+	"supports": {
+		"html": false,
+		"anchor": true,
+		"className": true
+	},
+	"example": {
+		"attributes": {}
+	},
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./style-index.css",
+	"render": "file:./render.php"
+}

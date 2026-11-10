@@ -1,0 +1,33 @@
+// Front-end styles for the Button Link block (joevernazza/button-link):
+// div.button > a.button__link. The block's own style.scss loads only in the
+// editor.
+
+@use "mixins/imports" as *;
+
+.button {
+
+	.button__link {
+		font-size: 14px;
+		color: $white_color;
+		text-decoration: none;
+		transition: color 0.25s ease-in-out;
+
+		IMG{
+			margin-left: 8px;
+			margin-bottom: 0px;
+			transition: margin-left 0.25s ease-in-out, margin-bottom 0.25s ease-in-out;
+		}
+	}
+
+	&.active{
+
+		.button__link {
+			color: $accent_color;
+
+			IMG{
+				margin-left: 12px;
+				margin-bottom: 4px;
+			}
+		}
+	}
+}

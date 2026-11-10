@@ -1,0 +1,208 @@
+// ---------------------------------------------------------------
+// Base
+// WordPress global styles (from theme.json) handle the body, headings and
+// element spacing; this only adds what they don't.
+// ---------------------------------------------------------------
+
+@use "mixins/imports" as *;
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	-webkit-text-size-adjust: 100%;
+	text-size-adjust: 100%;
+}
+
+body {
+	-webkit-font-smoothing: antialiased;
+	background-color: $secondary_color;
+	color: $white_color;
+	font-family: var(--wp--preset--font-family--inter);
+	padding: 0px;
+	margin: 0px;
+
+	&.fixed{
+		overflow: hidden;
+
+		.page_pagination{
+			z-index: 100;
+		}
+	}
+}
+
+img,
+svg {
+	max-width: 100%;
+	height: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
+
+// Desktop: two columns inside the 1280px container. The header
+// (_header.scss) sticks in the left column; main and the footer scroll in
+// the right. Below desktop everything stacks.
+.wp-site-blocks > .container {
+
+	@include mq(desktop) {
+		display: grid;
+		grid-template-columns: minmax(0, 400px) minmax(0, 1fr); // header | content
+		column-gap: 40px;
+		align-items: start; // Required: a stretched grid item can't stick.
+	}
+}
+
+.wp-site-blocks main,
+.wp-site-blocks > .container > footer {
+
+	@include mq(desktop) {
+		grid-column: 2;
+	}
+}
+
+MAIN{
+	margin-top: 100px;
+
+	@include mq("desktop"){
+		margin-top: unset;
+	}
+}
+
+.wp-site-blocks main {
+	margin-top: 100px;
+	padding-top: 20px;
+	padding-bottom: 40px;
+
+	@include mq("desktop"){
+		margin-top: unset;
+		padding-top: 40px;
+		padding-bottom: unset;
+	}
+
+	.entry-content {
+		
+		@include mq("desktop"){
+			max-width: 675px;
+			margin-left: auto;
+		}
+	}
+
+	// Portfolio entries: a copy of the header's role (above the content) and
+	// Launch links (below it), for mobile and tablet (the header shows them
+	// on desktop).
+	.main__details {
+
+		@include mq("desktop"){
+			display: none;
+		}
+	}
+}
+
+SECTION{
+	margin-bottom: 60px;
+
+	@include mq("desktop"){
+		padding-left: 24px;
+		margin-bottom: 130px;
+	}
+
+	&#projects{
+		padding-left: 0px;
+	}
+
+	&:last-child{
+		margin-bottom: 50px;
+	}
+}
+
+.container{
+	position: relative;
+	width: 100%;
+	max-width: 1280px;
+	padding: 0px 24px;
+	margin: 0px auto;
+
+	@include mq("desktop"){
+		padding: 0px 40px;
+	}
+}
+
+.single-portfolio{
+
+	header{
+
+		&.sticky-left-side{
+			height: 140px;
+
+			@include mq("desktop"){
+				height: 100%;
+			}
+		}
+	}
+
+	.entry-content {
+		margin-bottom: 20px;
+
+		@include mq('desktop'){
+			display: none;
+		}
+
+		section{
+			margin: 0px;
+		}
+	}
+
+	.main__details {
+
+		.sticky-left-side__role{
+            font-weight: 700;
+            margin-bottom: 12px;
+		}
+
+		.sticky-left-side__launch{
+			display: flex;
+			flex-direction: column;
+			margin-bottom: 40px;
+			gap: 8px;
+		}
+	}
+
+	.wp-site-blocks{
+
+		main{
+			margin-top: 140px;
+
+			@include mq("desktop"){
+				margin: unset;
+				padding: unset;
+			}
+		}
+
+		> .container{
+			display: flex;
+	    	align-items: center;
+			flex-direction: column;
+
+			@include mq("desktop"){
+				flex-direction: row;
+			}
+		}
+	}
+}
+
+.mb0{
+	margin-bottom: 0px !important;
+}

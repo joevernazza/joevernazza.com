@@ -1,0 +1,27 @@
+// Hamburgers (https://github.com/jonsuh/hamburgers, npm "hamburgers"): the
+// CSS for the Sticky Left Side menu toggle, button.hamburger.hamburger--slider
+// (navigation.js adds .is-active while the menu is open). Only the "slider"
+// type is built. Its size, color and position are set here and in
+// _header.scss (.sticky-left-side__toggle).
+
+@use "mixins/imports" as *;
+@use "hamburgers/_sass/hamburgers/hamburgers" with (
+	$hamburger-types: (slider),
+	$hamburger-padding-x: 10px,
+	$hamburger-padding-y: 14px,
+	$hamburger-layer-width: 24px,
+	$hamburger-layer-height: 2px,
+	$hamburger-layer-spacing: 5px,
+	$hamburger-layer-color: $light_color,
+	$hamburger-layer-border-radius: 2px
+);
+
+// The library's own timings (0.15s linear/ease) matched to the site's
+// 0.25s ease-in-out.
+.hamburger,
+.hamburger .hamburger-inner,
+.hamburger .hamburger-inner::before,
+.hamburger .hamburger-inner::after {
+	transition-duration: 0.25s;
+	transition-timing-function: ease-in-out;
+}

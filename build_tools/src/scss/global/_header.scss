@@ -1,0 +1,307 @@
+// ---------------------------------------------------------------
+// Header: the Sticky Left Side block (template part
+// "sticky-left-side", output as .wp-site-blocks > .container >
+// header.sticky-left-side). Block-specific rules can also go in
+// components/_sticky-left-side.scss.
+// ---------------------------------------------------------------
+
+@use "mixins/imports" as *;
+
+header{
+
+    &.sticky-left-side{
+        position: fixed;
+        top: 0px;
+        height: 100px;
+        background: $primary_color;
+        left: 0px;
+        padding: 20px 24px;
+        z-index: 100000;
+        width: 100%;
+
+        @include mq(desktop) {
+            position: sticky;
+            top: 0;
+            grid-column: 1;
+            grid-row: 1 / span 2; 
+            padding: unset;
+            padding-top: 40px;
+            width: unset;
+            left: unset;
+            background: unset;
+        }
+
+        // Hamburger (button.hamburger.hamburger--slider.sticky-left-side__toggle):
+        // opens the menu below desktop (navigation.js adds .is-active to it and
+        // .active to the nav). Its look comes from global/_hamburgers.scss.
+        .sticky-left-side__toggle{
+            position: absolute;
+            top: 10px;
+            right: 14px;
+            z-index: 100;
+
+            @include mq("desktop"){
+                display: none;
+            }
+        }
+
+        h1.sticky-left-side__headline{
+            margin-bottom: 4px;
+
+            @include mq("desktop"){
+                margin-bottom: 12px;
+            }
+        }
+
+        // Portfolio entries: the brand (the header's own h2, not the
+        // .mobile-header copy in the nav) is desktop only here; below desktop
+        // a copy shows above the entry content (.main__details).
+        @at-root body.single-portfolio header.sticky-left-side > .sticky-left-side__title{
+            display: none;
+
+            @include mq("desktop"){
+                display: block;
+            }
+        }
+
+        // Role and Launch links: desktop only here; below desktop a copy
+        // shows above the entry content (.main__details, _global.scss).
+        .sticky-left-side__role{
+            display: none;
+            font-weight: 700;
+            margin-bottom: 12px;
+
+            @include mq("desktop"){
+                display: block;
+            }
+        }
+
+        NAV.menu{
+            // Below desktop: hidden until it has .active, then fades in over
+            // the page. visibility keeps the closed menu's links out of the
+            // tab order and away from screen readers.
+            visibility: hidden;
+            opacity: 0;
+
+            @media (prefers-reduced-motion: no-preference) {
+                transition: opacity 0.25s ease-in-out, visibility 0.25s ease-in-out;
+            }
+
+            position: fixed;
+            top: 0px;
+            left: 0px;
+            width: 100vw;
+            height: 100vh;
+            background: $primary_color;
+            padding: 20px 24px;
+            z-index: 10;
+
+            @include mq("desktop"){
+                visibility: visible;
+                opacity: 1;
+                transition: none;
+                margin-top: 80px;
+
+                position: relative;
+                left: unset;
+                top: unset;
+                width: unset;
+                height: unset;
+                background: unset;
+                padding: unset;
+                z-index: unset;
+            }
+
+            &.active{
+                visibility: visible;
+                opacity: 1;
+            }
+
+            .mobile-header{
+                margin-bottom: 40px;
+
+                @include mq("desktop"){
+                    display: none;
+                }
+            }
+
+            UL.menu__list{
+                list-style: none;
+                padding: 0px;
+                margin-bottom: 55px;
+
+                LI.menu__item{
+                    position: relative;
+                    font-size: 14px;
+                    font-weight: 700;
+                    margin-bottom: 22px;
+
+                    A.menu__link{
+                        color: $light_color;
+                        text-decoration: none;
+                        padding-left: 48px;
+                        transition: padding-left 0.25s ease-in-out, color 0.25s ease-in-out;
+
+                        &:before{
+                            position: absolute;
+                            display: block;
+                            top: 9px;
+                            left: 0px;
+                            width: 30px;
+                            height: 1px;
+                            background-color: $light_color;
+                            transition: background-color 0.25s ease-in-out, width 0.25s ease-in-out;
+                            content: '';
+                        }
+                    }
+
+                    &.active{
+
+                        A.menu__link{
+                            color: $accent_color;
+                            padding-left: 80px;
+
+                            &:before{
+                                width: 62px;
+                                background-color: $white_color;
+                            }
+                        }
+                    }
+                }
+            }
+
+            UL.sticky-left-side__social{
+                display: flex;
+                padding: 0px;
+                list-style: none;
+
+                LI.sticky-left-side__social-item{
+                    width: 25px;
+                    height: 25px;
+
+                    A.sticky-left-side__social-link{
+
+                        IMG,
+                        SVG{
+                            width: 25px;
+                            height: 25px;
+                            transition: filter 0.25s ease-in-out;
+                        }
+
+                        .sticky-left-side__social-tooltip{
+                            display: none;
+                        }
+                    }
+
+                    .social-icon__bg,
+                    .social-icon__fg {
+                        transition: fill 0.25s ease-in-out;
+                    }
+
+                    .social-icon__bg {
+                        fill: $tertiary_color;
+                    }
+
+                    .social-icon__fg {
+                        fill: $secondary_color;
+                    }
+
+                    &.active{
+
+                        .social-icon__bg {
+                            fill: $white_color;
+                        }
+
+                        .social-icon__fg {
+                            // fill: $white_color;
+                        }
+                    }
+                }
+            }
+        }
+
+        .sticky-left-side__text{
+            display: none;
+
+            @include mq('desktop'){
+                display: block;
+            }
+        }
+
+        .sticky-left-side__launch{
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 40px;
+
+            @include mq("desktop"){
+                display: flex;
+            }
+
+            .button__link{
+                font-weight: 700;
+            }
+        }
+
+        .sticky-left-side__back{
+            margin-bottom: 4px;
+
+            @include mq("desktop"){
+                margin-bottom: 22px;
+            }
+        }
+
+        .sticky-left-side__back-link{
+            position: relative;
+            padding-left: 20px;
+            color: $tertiary_color;
+            text-decoration: none;
+            font-size: 14px;
+            letter-spacing: -0.25px;
+            font-weight: 700;
+            text-transform: uppercase;
+            transition: color 0.25s ease-in-out;
+
+            .sticky-left-side__back-icon{
+                position: absolute;
+                bottom: 3px;
+                left: 0px;
+                width: 10px;
+                margin-right: 6px;
+                transform: scale(-1);
+                transition: bottom 0.25s ease-in-out, left 0.25s ease-in-out;
+            }
+
+            &.active{
+                color: $accent_color;
+
+                .sticky-left-side__back-icon{
+                    bottom:  -1px;
+                    left: -4px;
+                }
+            }
+        }
+
+        section.wp-block-joevernazza-section{
+            padding:0px;
+            margin: 0px;
+        }
+    }
+}
+// Editor canvas: main.css also loads in the editor, where the canvas is often
+// narrower than desktop. Keep the header editable there at any width: in the
+// page flow (not fixed), with its text and menu showing. Front end unchanged.
+.editor-styles-wrapper header.sticky-left-side {
+	position: static;
+	height: auto;
+	width: auto;
+
+	.sticky-left-side__text {
+		display: block;
+	}
+
+	nav.menu {
+		visibility: visible;
+		opacity: 1;
+	}
+}

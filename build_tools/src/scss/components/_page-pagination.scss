@@ -1,0 +1,55 @@
+// Front-end styles for the Page Pagination block (joevernazza/page-pagination):
+// div.page_pagination > p.page_pagination__prev/__next > a.page_pagination__link.
+// The block's own style.scss only styles the editor.
+
+@use "mixins/imports" as *;
+
+.page_pagination{
+    position: fixed;
+    top: 100px;
+    width: 100%;
+    z-index: 10000000;
+    left: 0px;
+    display: flex;
+    justify-content: space-between;
+    padding: 0px 24px 0px;
+
+    @include mq('desktop'){
+        top: unset;
+        padding: 0px 10px;
+    }
+
+    @include mq('desktopLG'){
+        padding: 24px;
+        z-index: 10000;
+    }
+
+    // Rollover: the arrow fades from half to full opacity while the link has
+    // .active (navigation.js initNavigation(): hover or keyboard focus).
+    .page_pagination__link{
+        display: block;
+        line-height: 0;
+
+        IMG.page_pagination__icon{
+            opacity: 0.5;
+            transition: opacity 0.25s ease-in-out;
+        }
+
+        &.active{
+
+            IMG.page_pagination__icon{
+                opacity: 1;
+            }
+        }
+    }
+
+    IMG.page_pagination__icon{
+        display: block;
+        width: 20px;
+        height: auto;
+
+        @include mq('desktopLG'){
+            width: 40px;
+        }
+    }
+}

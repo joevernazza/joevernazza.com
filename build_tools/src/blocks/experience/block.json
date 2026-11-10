@@ -1,0 +1,59 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "joevernazza/experience",
+	"version": "1.0.0",
+	"title": "Experience",
+	"category": "text",
+	"icon": "id-alt",
+	"description": "One job: date range in the left column; position, company, description and tags in the right.",
+	"keywords": [ "experience", "job", "resume", "cv", "work" ],
+	"textdomain": "joevernazza",
+	"attributes": {
+		"dates": {
+			"type": "string",
+			"default": ""
+		},
+		"position": {
+			"type": "string",
+			"default": ""
+		},
+		"company": {
+			"type": "string",
+			"default": ""
+		},
+		"description": {
+			"type": "string",
+			"default": ""
+		},
+		"tags": {
+			"type": "array",
+			"default": [],
+			"items": {
+				"type": "string"
+			}
+		},
+		"headingLevel": {
+			"type": "integer",
+			"default": 3,
+			"enum": [ 2, 3, 4 ]
+		}
+	},
+	"supports": {
+		"html": false,
+		"anchor": true,
+		"className": true
+	},
+	"example": {
+		"attributes": {
+			"dates": "2018 – 2026",
+			"position": "Senior Frontend Developer",
+			"company": "Relevate",
+			"description": "Led front-end development for pharmaceutical brand sites.",
+			"tags": [ "JavaScript", "React" ]
+		}
+	},
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./style-index.css",
+	"render": "file:./render.php"
+}

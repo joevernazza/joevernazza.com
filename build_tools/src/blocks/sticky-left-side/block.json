@@ -1,0 +1,60 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "joevernazza/sticky-left-side",
+	"version": "1.0.0",
+	"title": "Sticky Left Side",
+	"category": "design",
+	"icon": "align-pull-left",
+	"description": "The site header (a <header> element) with a headline, title, text, a Menu block and a list of social icon links.",
+	"keywords": [ "header", "sidebar", "sticky", "menu", "social" ],
+	"textdomain": "joevernazza",
+	"attributes": {
+		"headline": {
+			"type": "string",
+			"default": ""
+		},
+		"title": {
+			"type": "string",
+			"default": ""
+		},
+		"text": {
+			"type": "string",
+			"default": ""
+		},
+		"socials": {
+			"type": "array",
+			"default": [],
+			"items": {
+				"type": "object"
+			}
+		},
+		"socialsNewTab": {
+			"type": "boolean",
+			"default": true
+		},
+		"backText": {
+			"type": "string",
+			"default": "Back to projects"
+		},
+		"backUrl": {
+			"type": "string",
+			"default": "/#projects"
+		}
+	},
+	"supports": {
+		"html": false,
+		"anchor": true,
+		"className": true
+	},
+	"example": {
+		"attributes": {
+			"headline": "Joe Vernazza",
+			"title": "Web developer",
+			"text": "Building accessible websites and emails."
+		}
+	},
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./style-index.css",
+	"render": "file:./render.php"
+}

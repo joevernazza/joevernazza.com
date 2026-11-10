@@ -1,0 +1,4 @@
+// Entry point: only @use partials here, no styles.
+@use "mixins/imports" as *;
+@use "global/imports";
+@use "components/imports" as components;

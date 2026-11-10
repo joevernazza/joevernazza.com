@@ -1,0 +1,130 @@
+// Editor-only styles for joevernazza/portfolio-slider (block.json "editorStyle"). The
+// front end is styled by the theme: build_tools/src/scss/components/.
+.portfolio-slider__carousel {
+	position: relative;
+}
+
+// Horizontal scroll-snap strip: swipeable and keyboard-scrollable with or
+// without JavaScript.
+.portfolio-slider__track {
+	position: relative; // Slides' offsetLeft is measured from here (view.js).
+	display: flex;
+	overflow-x: auto;
+	scroll-snap-type: x mandatory;
+	overscroll-behavior-x: contain;
+	scrollbar-width: none;
+	background-color: var(--wp--preset--color--light, #f8fafc);
+
+	&::-webkit-scrollbar {
+		display: none;
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		scroll-behavior: smooth;
+	}
+}
+
+.portfolio-slider__slide {
+	display: flex;
+	flex: 0 0 100%;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	margin: 0;
+	scroll-snap-align: start;
+	scroll-snap-stop: always;
+}
+
+// Each slide is a <picture> (desktop/tablet/mobile versions).
+.portfolio-slider__slide picture {
+	display: block;
+	width: 100%;
+}
+
+.portfolio-slider__image {
+	display: block;
+	width: 100%;
+	height: auto;
+	max-height: 80vh;
+	object-fit: contain;
+}
+
+.portfolio-slider__caption {
+	padding: var(--wp--preset--spacing--10, 8px) var(--wp--preset--spacing--20, 16px);
+	color: var(--wp--preset--color--secondary, #475569);
+	font-size: var(--wp--preset--font-size--small);
+	text-align: center;
+}
+
+.portfolio-slider__controls {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--wp--preset--spacing--20, 16px);
+	margin-top: var(--wp--preset--spacing--20, 16px);
+
+	&[hidden] {
+		display: none;
+	}
+}
+
+.portfolio-slider__button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: none;
+	width: 44px;
+	height: 44px;
+	padding: 0;
+	border: 2px solid var(--wp--preset--color--primary, #1e293b);
+	border-radius: 50%;
+	background-color: var(--wp--preset--color--white, #fff);
+	color: var(--wp--preset--color--primary, #1e293b);
+	font-size: 1.25rem;
+	line-height: 1;
+	cursor: pointer;
+
+	&:hover {
+		background-color: var(--wp--preset--color--primary, #1e293b);
+		color: var(--wp--preset--color--white, #fff);
+	}
+
+	&[aria-disabled="true"] {
+		border-color: var(--wp--preset--color--tertiary, #64748b);
+		background-color: var(--wp--preset--color--white, #fff);
+		color: var(--wp--preset--color--tertiary, #64748b);
+		cursor: default;
+	}
+}
+
+.portfolio-slider__dots {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
+// 24×24px targets (WCAG 2.5.8) around a small visible dot.
+.portfolio-slider__dot {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	padding: 0;
+	border: 0;
+	background: none;
+	cursor: pointer;
+
+	&::before {
+		content: "";
+		width: 10px;
+		height: 10px;
+		box-sizing: border-box;
+		border: 2px solid var(--wp--preset--color--primary, #1e293b);
+		border-radius: 50%;
+	}
+
+	&[aria-current="true"]::before {
+		background-color: var(--wp--preset--color--primary, #1e293b);
+	}
+}
