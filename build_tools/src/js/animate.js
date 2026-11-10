@@ -11,6 +11,12 @@
  *     finishes while they're out of view, so scrolling shows them already in
  *     place; nothing animates on scroll.
  *
+ * When the page is about to jump (a #hash in the URL, or a reload / Back /
+ * Forward visit whose scroll position the browser restores), "on screen"
+ * isn't known yet: the `first` container (the header, always on screen)
+ * starts at once, and the rest is sorted once the page has loaded and
+ * scrolled (initSectionNav lines a #section up on `load`).
+ *
  * Keyboard focus moving into an element that's still waiting reveals it at
  * once (WCAG 2.4.7). Reduced-motion users get everything at once.
  *
@@ -41,41 +47,80 @@ export function initAnimations( {
 		return;
 	}
 
-	// On screen now: queued in order. Off screen: revealed straight away.
+	const inFirst = ( el ) => Boolean( first && el.closest( first ) );
 	const waiting = [];
-	for ( const el of elements ) {
-		const r = el.getBoundingClientRect();
-		const onScreen =
-			r.width + r.height > 0 &&
-			r.bottom > 0 &&
-			r.top < window.innerHeight;
-		if ( ! onScreen ) {
-			reveal( el );
-			continue;
-		}
-		waiting.push( {
-			el,
-			group: first && el.closest( first ) ? 0 : 1,
-			top: r.top + window.scrollY,
-			left: r.left,
-		} );
-	}
-	waiting.sort(
-		( a, b ) => a.group - b.group || a.top - b.top || a.left - b.left
-	);
+	let timer = null;
 
-	const step = Math.min( stagger, maxDelay / ( waiting.length || 1 ) );
+	// Reveals the queue in order; the step shrinks when many are waiting.
 	const tick = () => {
+		timer = null;
 		const next = waiting.shift();
 		if ( ! next ) {
 			return;
 		}
 		reveal( next.el );
-		setTimeout( tick, step );
+		timer = setTimeout(
+			tick,
+			Math.min( stagger, maxDelay / ( waiting.length + 1 ) )
+		);
 	};
-	tick();
 
-	// Focus moving into a waiting element shows it now, out of turn.
+	// Queues the given elements that are on screen now (in page order, the
+	// `first` container's first) and reveals the rest straight away.
+	const sort = ( els ) => {
+		for ( const el of els ) {
+			const r = el.getBoundingClientRect();
+			const onScreen =
+				r.width + r.height > 0 &&
+				r.bottom > 0 &&
+				r.top < window.innerHeight;
+			if ( ! onScreen ) {
+				reveal( el );
+				continue;
+			}
+			waiting.push( {
+				el,
+				group: inFirst( el ) ? 0 : 1,
+				top: r.top + window.scrollY,
+				left: r.left,
+			} );
+		}
+		waiting.sort(
+			( a, b ) => a.group - b.group || a.top - b.top || a.left - b.left
+		);
+		if ( ! timer ) {
+			tick();
+		}
+	};
+
+	const nav = window.performance?.getEntriesByType?.( 'navigation' )[ 0 ];
+	const willJump =
+		( window.location.hash.length > 1 &&
+			document.getElementById(
+				decodeURIComponent( window.location.hash.slice( 1 ) )
+			) ) ||
+		[ 'reload', 'back_forward' ].includes( nav?.type );
+
+	if ( ! willJump ) {
+		sort( elements );
+	} else {
+		// The header now; the rest after the jump (load, then a frame so
+		// initSectionNav's load handler has scrolled first).
+		sort( elements.filter( inFirst ) );
+		const rest = elements.filter( ( el ) => ! inFirst( el ) );
+		const later = () =>
+			requestAnimationFrame( () =>
+				requestAnimationFrame( () => sort( rest ) )
+			);
+		if ( document.readyState === 'complete' ) {
+			later();
+		} else {
+			window.addEventListener( 'load', later, { once: true } );
+		}
+	}
+
+	// Focus moving into a waiting element shows it now, out of turn. (An
+	// element not yet sorted shows when it is.)
 	document.addEventListener( 'focusin', ( event ) => {
 		const index = waiting.findIndex( ( item ) =>
 			item.el.contains( event.target )
