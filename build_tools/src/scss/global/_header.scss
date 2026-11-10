@@ -142,7 +142,7 @@ header{
                         padding-left: 48px;
                         transition: padding-left 0.25s ease-in-out, color 0.25s ease-in-out;
 
-                        &:before{
+                        &::before{
                             position: absolute;
                             display: block;
                             top: 9px;
@@ -161,7 +161,7 @@ header{
                             color: $accent_color;
                             padding-left: 80px;
 
-                            &:before{
+                            &::before{
                                 width: 62px;
                                 background-color: $white_color;
                             }
