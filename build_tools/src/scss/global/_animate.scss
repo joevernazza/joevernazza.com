@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------
-// Scroll-reveal animations (driven by src/js/animate.js)
+// Reveal-on-load animations (driven by src/js/animate.js)
 //
 // Targets (keep in sync with REVEAL_SELECTOR in src/js/main.js):
 //   - any element with the `animate` class
@@ -7,9 +7,11 @@
 //     "Reveal on scroll" block style (`is-style-reveal`)
 //   - Separators using that style
 //
-// JS adds `animate-active` when an element scrolls into view (its own
-// class, so it can't clash with the hover/current `active` class). Elements are only
-// hidden when <html> has the `js` class (added inline in <head> by the
+// JS adds `animate-active` on page load: one after another for elements on
+// screen, at once for the rest (their animation finishes off screen, so
+// they're simply there when scrolled to). It's its own class, so it can't
+// clash with the hover/current `active` class. Elements are only hidden when
+// <html> has the `js` class (added inline in <head> by the
 // theme), so the page stays readable without JS.
 //
 // Tweak per element with custom properties, e.g.

@@ -33,7 +33,7 @@ $joevernazza_label = sprintf(
 );
 ?>
 <div <?php echo get_block_wrapper_attributes( array( 'class' => 'portfolio-slider' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped by core. ?>>
-	<section class="portfolio-slider__carousel" aria-roledescription="<?php echo esc_attr__( 'carousel', 'joevernazza' ); ?>" aria-label="<?php echo esc_attr( $joevernazza_label ); ?>">
+	<section class="portfolio-slider__carousel animate animate--fade" aria-roledescription="<?php echo esc_attr__( 'carousel', 'joevernazza' ); ?>" aria-label="<?php echo esc_attr( $joevernazza_label ); ?>">
 		<div class="portfolio-slider__track" tabindex="0">
 			<?php foreach ( $joevernazza_slides as $joevernazza_index => $joevernazza_slide ) : ?>
 				<?php $joevernazza_caption = wp_get_attachment_caption( $joevernazza_slide['desktop'] ); ?>
