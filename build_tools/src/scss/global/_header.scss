@@ -45,12 +45,24 @@ header{
             }
         }
 
-        h1.sticky-left-side__headline{
+        // The headline/title are <h1>/<h2> on the home page and portfolio
+        // entries, and <p class="header1/header2"> elsewhere (one <h1> per
+        // page). The paragraph versions get the rest of the heading look here.
+        .sticky-left-side__headline{
             margin-bottom: 4px;
 
             @include mq("desktop"){
                 margin-bottom: 12px;
             }
+        }
+
+        p.sticky-left-side__headline{
+            font-weight: 700;
+        }
+
+        p.sticky-left-side__title{
+            line-height: normal;
+            letter-spacing: normal;
         }
 
         // Portfolio entries: the brand (the header's own h2, not the

@@ -77,6 +77,10 @@ if ( $joevernazza_is_entry ) {
 $joevernazza_headings = is_front_page() || $joevernazza_is_entry;
 $joevernazza_h1       = $joevernazza_headings ? 'h1' : 'p';
 $joevernazza_h2       = $joevernazza_headings ? 'h2' : 'p';
+// As paragraphs they keep the heading look: .header1 / .header2 match h1 / h2
+// (global/_typography.scss).
+$joevernazza_h1_class = $joevernazza_headings ? '' : ' header1';
+$joevernazza_h2_class = $joevernazza_headings ? '' : ' header2';
 
 // Social links need a URL and an icon or tooltip to name them.
 $joevernazza_socials = array_filter(
@@ -93,10 +97,10 @@ $joevernazza_socials = array_filter(
 		<p class="very-small sticky-left-side__back animate animate--fade"><a class="sticky-left-side__back-link" href="<?php echo esc_url( str_starts_with( $joevernazza_back_url, '/' ) ? home_url( $joevernazza_back_url ) : $joevernazza_back_url ); ?>"><?php echo $joevernazza_back_icon ? '<img class="sticky-left-side__back-icon" src="' . esc_url( $joevernazza_back_icon ) . '" alt="" /> ' : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- URL escaped here. ?><?php echo esc_html( $joevernazza_back ); ?></a></p>
 	<?php endif; ?>
 	<?php if ( $joevernazza_headline ) : ?>
-		<<?php echo esc_html( $joevernazza_h1 ); ?> class="sticky-left-side__headline animate animate--fade"><?php echo wp_kses_post( $joevernazza_headline ); ?></<?php echo esc_html( $joevernazza_h1 ); ?>>
+		<<?php echo esc_html( $joevernazza_h1 ); ?> class="sticky-left-side__headline<?php echo esc_attr( $joevernazza_h1_class ); ?> animate animate--fade"><?php echo wp_kses_post( $joevernazza_headline ); ?></<?php echo esc_html( $joevernazza_h1 ); ?>>
 	<?php endif; ?>
 	<?php if ( $joevernazza_title ) : ?>
-		<<?php echo esc_html( $joevernazza_h2 ); ?> class="sticky-left-side__title<?php echo $joevernazza_is_entry ? ' mb0' : ''; ?> animate animate--fade"><?php echo wp_kses_post( $joevernazza_title ); ?></<?php echo esc_html( $joevernazza_h2 ); ?>>
+		<<?php echo esc_html( $joevernazza_h2 ); ?> class="sticky-left-side__title<?php echo esc_attr( $joevernazza_h2_class ); ?><?php echo $joevernazza_is_entry ? ' mb0' : ''; ?> animate animate--fade"><?php echo wp_kses_post( $joevernazza_title ); ?></<?php echo esc_html( $joevernazza_h2 ); ?>>
 	<?php endif; ?>
 	<?php if ( ! empty( $joevernazza_role ) ) : ?>
 		<?php echo $joevernazza_role; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in joevernazza_portfolio_role_html(). ?>
@@ -195,10 +199,10 @@ $joevernazza_socials = array_filter(
 		$joevernazza_site_headline = $attributes['headline'] ?? '';
 		$joevernazza_site_title    = $attributes['title'] ?? '';
 		if ( $joevernazza_site_headline ) {
-			$joevernazza_mobile_header .= sprintf( '<%1$s class="sticky-left-side__headline">%2$s</%1$s>', esc_html( $joevernazza_h1 ), wp_kses_post( $joevernazza_site_headline ) );
+			$joevernazza_mobile_header .= sprintf( '<%1$s class="sticky-left-side__headline%3$s">%2$s</%1$s>', esc_html( $joevernazza_h1 ), wp_kses_post( $joevernazza_site_headline ), esc_attr( $joevernazza_h1_class ) );
 		}
 		if ( $joevernazza_site_title ) {
-			$joevernazza_mobile_header .= sprintf( '<%1$s class="sticky-left-side__title">%2$s</%1$s>', esc_html( $joevernazza_h2 ), wp_kses_post( $joevernazza_site_title ) );
+			$joevernazza_mobile_header .= sprintf( '<%1$s class="sticky-left-side__title%3$s">%2$s</%1$s>', esc_html( $joevernazza_h2 ), wp_kses_post( $joevernazza_site_title ), esc_attr( $joevernazza_h2_class ) );
 		}
 		if ( '' !== $joevernazza_mobile_header ) {
 			$joevernazza_nav_open = strpos( $joevernazza_inner, '>', (int) strpos( $joevernazza_inner, '<nav' ) );

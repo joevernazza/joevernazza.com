@@ -129,7 +129,7 @@ $joevernazza_links = array(
 	),
 );
 ?>
-<div <?php echo get_block_wrapper_attributes( array( 'class' => 'page_pagination' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped by core. ?>>
+<div <?php echo get_block_wrapper_attributes( array( 'class' => 'page_pagination animate animate--fade' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped by core. ?>>
 	<?php foreach ( $joevernazza_links as $joevernazza_rel => $joevernazza_link ) : ?>
 		<p class="page_pagination__<?php echo esc_attr( $joevernazza_rel ); ?>">
 			<a class="page_pagination__link page_pagination__link--<?php echo esc_attr( $joevernazza_rel ); ?>" href="<?php echo esc_url( get_permalink( $joevernazza_link['id'] ) ); ?>" rel="<?php echo esc_attr( $joevernazza_rel ); ?>">
