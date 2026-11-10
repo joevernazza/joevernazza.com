@@ -469,7 +469,7 @@ function joevernazza_portfolio_brand_label( $brand ) {
  */
 function joevernazza_portfolio_role_html( $post_id ) {
 	$role = joevernazza_portfolio_role( $post_id );
-	return '' === $role ? '' : '<p class="sticky-left-side__role"><span class="has-tertiary-color">Role : </span>' . esc_html( $role ) . '</p>';
+	return '' === $role ? '' : '<p class="sticky-left-side__role animate animate--fade"><span class="has-tertiary-color">Role : </span>' . esc_html( $role ) . '</p>';
 }
 
 /**
@@ -497,7 +497,7 @@ function joevernazza_portfolio_launch_html( $post_id ) {
 			esc_html__( '(opens in a new tab)', 'joevernazza' )
 		);
 	}
-	return '<div class="sticky-left-side__launch">' . $html . '</div>';
+	return '<div class="sticky-left-side__launch animate animate--fade">' . $html . '</div>';
 }
 
 /**
