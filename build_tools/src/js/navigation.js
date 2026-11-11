@@ -463,12 +463,22 @@ export function initSectionNav( {
  * Escape closes it and returns focus to the button; choosing a link in the menu closes it; widening the screen to
  * desktop (where the toggle is hidden and the menu always shows) resets it.
  *
+ * Each time the menu opens, its reveal items (`revealSelector`, the Menu's
+ * `li.animate`) play their reveal animation again, one after another
+ * (`revealStagger` ms apart): `revealClass` is taken off and put back.
+ * Desktop never opens the menu, so it keeps the page-load reveal only.
+ * Reduced-motion users get no replay, and focus moving onto an item shows
+ * it at once.
+ *
  * @param {Object} [options]                Options.
  * @param {string} [options.toggleSelector] Toggle buttons.
  * @param {string} [options.toggleClass]    Class on the button while open.
  * @param {string} [options.activeClass]    Class on the menu while open.
  * @param {string} [options.bodyClass]      Class on <body> while open.
  * @param {string} [options.desktopQuery]   Media query where the toggle isn't used.
+ * @param {string} [options.revealSelector] Items in the menu to animate on open.
+ * @param {string} [options.revealClass]    Class that plays their animation.
+ * @param {number} [options.revealStagger]  ms between items.
  */
 export function initMenuToggle( {
 	toggleSelector = '.sticky-left-side__toggle',
@@ -476,8 +486,14 @@ export function initMenuToggle( {
 	activeClass = 'active',
 	bodyClass = 'fixed',
 	desktopQuery = '(min-width: 1024px)',
+	revealSelector = 'li.animate',
+	revealClass = 'animate-active',
+	revealStagger = 100,
 } = {} ) {
 	const desktop = window.matchMedia( desktopQuery );
+	const reducedMotion = window.matchMedia(
+		'(prefers-reduced-motion: reduce)'
+	);
 
 	document.querySelectorAll( toggleSelector ).forEach( ( toggle ) => {
 		const menu = document.getElementById(
@@ -519,7 +535,33 @@ export function initMenuToggle( {
 			}
 		};
 
+		// Replays the items' reveal on open; on close, shows them all (so the
+		// desktop menu is never left hidden).
+		let revealTimers = [];
+		const replayReveal = ( open ) => {
+			revealTimers.forEach( clearTimeout );
+			revealTimers = [];
+			const items = [ ...menu.querySelectorAll( revealSelector ) ];
+			if ( ! open || desktop.matches || reducedMotion.matches ) {
+				items.forEach( ( item ) => item.classList.add( revealClass ) );
+				return;
+			}
+			items.forEach( ( item ) => item.classList.remove( revealClass ) );
+			// Read layout so the removal applies and the animation restarts.
+			void menu.offsetWidth;
+			revealTimers = items.map( ( item, index ) =>
+				setTimeout(
+					() => item.classList.add( revealClass ),
+					index * revealStagger
+				)
+			);
+		};
+		menu.addEventListener( 'focusin', ( event ) =>
+			event.target.closest( revealSelector )?.classList.add( revealClass )
+		);
+
 		const setOpen = ( open ) => {
+			replayReveal( open );
 			toggle.setAttribute( 'aria-expanded', String( open ) );
 			toggle.classList.toggle( toggleClass, open );
 			menu.classList.toggle( activeClass, open );
