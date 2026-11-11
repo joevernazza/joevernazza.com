@@ -14,9 +14,9 @@
  * (printed inline, sanitized, so CSS can color it) or else an image.
  *
  * It's in every template (template part "sticky-left-side"), so the
- * headline and title are the page's <h1> and <h2> only on the front page
- * and on portfolio entries. Elsewhere they're paragraphs, so each page keeps
- * one <h1> (its own title) and headings stay in order.
+ * headline is the page's <h1> only on the front page and on portfolio
+ * entries. Elsewhere it's a paragraph, so each page keeps one <h1> (its own
+ * title). The title is always a paragraph.
  *
  * On a portfolio entry the headline, title and text come from the entry
  * instead of the block (with the entry's role, p.sticky-left-side__role,
@@ -50,7 +50,7 @@ if ( $joevernazza_is_entry ) {
 	$joevernazza_title = '' !== $joevernazza_brand && function_exists( 'joevernazza_portfolio_brand_label' ) ? joevernazza_portfolio_brand_label( $joevernazza_brand ) : '';
 	// Role and Launch links (inc/portfolio.php; also copied above the entry
 	// content for mobile and tablet).
-	$joevernazza_role     = function_exists( 'joevernazza_portfolio_role_html' ) ? joevernazza_portfolio_role_html( $joevernazza_entry_id ) : '';
+	$joevernazza_role     = function_exists( 'joevernazza_portfolio_role_html' ) ? joevernazza_portfolio_role_html( $joevernazza_entry_id, 'small' ) : '';
 	$joevernazza_text     = '';
 	$joevernazza_back_url = trim( (string) ( $attributes['backUrl'] ?? '' ) );
 	$joevernazza_back     = trim( (string) ( $attributes['backText'] ?? '' ) );
@@ -76,11 +76,9 @@ if ( $joevernazza_is_entry ) {
 
 $joevernazza_headings = is_front_page() || $joevernazza_is_entry;
 $joevernazza_h1       = $joevernazza_headings ? 'h1' : 'p';
-$joevernazza_h2       = $joevernazza_headings ? 'h2' : 'p';
-// As paragraphs they keep the heading look: .header1 / .header2 match h1 / h2
-// (global/_typography.scss).
+// As a paragraph the headline keeps the heading look: .header1 matches h1
+// (global/_typography.scss). The title is always a paragraph.
 $joevernazza_h1_class = $joevernazza_headings ? '' : ' header1';
-$joevernazza_h2_class = $joevernazza_headings ? '' : ' header2';
 
 // Social links need a URL and an icon or tooltip to name them.
 $joevernazza_socials = array_filter(
@@ -100,7 +98,7 @@ $joevernazza_socials = array_filter(
 		<<?php echo esc_html( $joevernazza_h1 ); ?> class="sticky-left-side__headline<?php echo esc_attr( $joevernazza_h1_class ); ?> animate animate--fade"><?php echo wp_kses_post( $joevernazza_headline ); ?></<?php echo esc_html( $joevernazza_h1 ); ?>>
 	<?php endif; ?>
 	<?php if ( $joevernazza_title ) : ?>
-		<<?php echo esc_html( $joevernazza_h2 ); ?> class="sticky-left-side__title<?php echo esc_attr( $joevernazza_h2_class ); ?><?php echo $joevernazza_is_entry ? ' mb0' : ''; ?> animate animate--fade"><?php echo wp_kses_post( $joevernazza_title ); ?></<?php echo esc_html( $joevernazza_h2 ); ?>>
+		<p class="sticky-left-side__title small<?php echo $joevernazza_is_entry ? ' mb0' : ''; ?> animate animate--fade"><?php echo wp_kses_post( $joevernazza_title ); ?></p>
 	<?php endif; ?>
 	<?php if ( ! empty( $joevernazza_role ) ) : ?>
 		<?php echo $joevernazza_role; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in joevernazza_portfolio_role_html(). ?>
@@ -202,7 +200,7 @@ $joevernazza_socials = array_filter(
 			$joevernazza_mobile_header .= sprintf( '<%1$s class="sticky-left-side__headline%3$s">%2$s</%1$s>', esc_html( $joevernazza_h1 ), wp_kses_post( $joevernazza_site_headline ), esc_attr( $joevernazza_h1_class ) );
 		}
 		if ( $joevernazza_site_title ) {
-			$joevernazza_mobile_header .= sprintf( '<%1$s class="sticky-left-side__title%3$s">%2$s</%1$s>', esc_html( $joevernazza_h2 ), wp_kses_post( $joevernazza_site_title ), esc_attr( $joevernazza_h2_class ) );
+			$joevernazza_mobile_header .= sprintf( '<p class="sticky-left-side__title small">%s</p>', wp_kses_post( $joevernazza_site_title ) );
 		}
 		if ( '' !== $joevernazza_mobile_header ) {
 			$joevernazza_nav_open = strpos( $joevernazza_inner, '>', (int) strpos( $joevernazza_inner, '<nav' ) );

@@ -44,6 +44,7 @@
 
                     .projects__separator{
                         font-weight: 700;
+                        color:$tertiary_color;
                     }
 
                     .projects__brand{
@@ -52,5 +53,32 @@
                 }
             }
         }
+    }
+}
+// Mobile shows the shorter excerpt (render.php outputs both). Below tablet
+// the full one is only visually hidden, so screen readers still read it (the
+// short one is aria-hidden).
+.projects__excerpt-full{
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+
+    @include mq("tablet"){
+        position: static;
+        width: auto;
+        height: auto;
+        overflow: visible;
+        clip-path: none;
+        white-space: normal;
+    }
+}
+
+.projects__excerpt-short{
+
+    @include mq("tablet"){
+        display: none;
     }
 }

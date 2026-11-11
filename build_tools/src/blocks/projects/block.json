@@ -25,6 +25,10 @@
 		"excerptLength": {
 			"type": "integer",
 			"default": 100
+		},
+		"mobileExcerptLength": {
+			"type": "integer",
+			"default": 50
 		}
 	},
 	"supports": {

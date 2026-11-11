@@ -283,6 +283,26 @@ export default function Edit( { attributes, setAttributes, name } ) {
 							setAttributes( { excerptLength: value ?? 100 } )
 						}
 					/>
+					<RangeControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						label={ __(
+							'Mobile text length (characters)',
+							'joevernazza'
+						) }
+						help={ __(
+							'Used below tablet width (768px).',
+							'joevernazza'
+						) }
+						value={ attributes.mobileExcerptLength }
+						min={ 20 }
+						max={ 200 }
+						onChange={ ( value ) =>
+							setAttributes( {
+								mobileExcerptLength: value ?? 50,
+							} )
+						}
+					/>
 				</PanelBody>
 			</InspectorControls>
 			<div { ...blockProps }>

@@ -7,7 +7,9 @@
  *     `first` container's elements first, e.g. the header before main), at
  *     least `stagger` ms apart, tighter when there are many so the whole
  *     sequence takes about `maxDelay` at most.
- *   - Elements off screen get the class straight away. Their animation
+ *   - Elements off screen, or hidden by CSS (display: none, visibility:
+ *     hidden, e.g. the closed mobile menu), get the class straight away, so
+ *     the stagger only counts what's shown. Their animation
  *     finishes while they're out of view, so scrolling shows them already in
  *     place; nothing animates on scroll.
  *
@@ -48,6 +50,14 @@ export function initAnimations( {
 	}
 
 	const inFirst = ( el ) => Boolean( first && el.closest( first ) );
+
+	// Hidden by CSS (display: none or visibility: hidden on it or an
+	// ancestor, e.g. the closed mobile menu)? Opacity isn't checked: every
+	// element waiting to reveal is transparent. Browsers without
+	// checkVisibility() count it as shown.
+	const isShown = ( el ) =>
+		typeof el.checkVisibility !== 'function' ||
+		el.checkVisibility( { visibilityProperty: true } );
 	const waiting = [];
 	let timer = null;
 
@@ -73,7 +83,10 @@ export function initAnimations( {
 			const onScreen =
 				r.width + r.height > 0 &&
 				r.bottom > 0 &&
-				r.top < window.innerHeight;
+				r.top < window.innerHeight &&
+				r.right > 0 &&
+				r.left < window.innerWidth &&
+				isShown( el );
 			if ( ! onScreen ) {
 				reveal( el );
 				continue;

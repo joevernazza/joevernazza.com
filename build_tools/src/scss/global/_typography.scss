@@ -52,6 +52,24 @@ h3{
     @include mq("desktop"){
         margin-bottom: 12px;
     }
+
+    &.experience__heading{
+        display: flex;
+        flex-direction: column;
+
+        @include mq("tablet"){
+            display: unset;
+            flex-direction: unset;
+        }
+
+        .experience__separator{
+            display: none;
+
+            @include mq('tablet'){
+                display: unset;
+            }
+        }
+    }
 }
 
 a{

@@ -8,7 +8,10 @@
  *   (decorative: the title names the project);
  * - the title as a heading, then "//" and the brand name when there is one;
  * - the excerpt (else the content) cut to excerptLength characters at a word
- *   boundary, with an ellipsis;
+ *   boundary, with an ellipsis; below tablet width a shorter copy
+ *   (mobileExcerptLength) shows instead (span.projects__excerpt-full /
+ *   span.projects__excerpt-short, switched in components/_projects.scss;
+ *   screen readers get the full one);
  * - a "View Project" Button Link block (div.button > a.button__link with the
  *   arrow icon) to the entry's page, named with the title for screen
  *   readers.
@@ -88,6 +91,7 @@ if ( ! function_exists( 'joevernazza_project_image' ) ) {
 $joevernazza_ids    = array_values( array_filter( array_map( 'absint', (array) ( $attributes['entries'] ?? array() ) ) ) );
 $joevernazza_level  = in_array( (int) ( $attributes['headingLevel'] ?? 3 ), array( 2, 3, 4 ), true ) ? (int) $attributes['headingLevel'] : 3;
 $joevernazza_length = max( 10, (int) ( $attributes['excerptLength'] ?? 100 ) );
+$joevernazza_mobile = max( 10, (int) ( $attributes['mobileExcerptLength'] ?? 50 ) );
 $joevernazza_posts  = $joevernazza_ids
 	? get_posts(
 		array(
@@ -119,7 +123,9 @@ if ( ! $joevernazza_posts ) {
 			$joevernazza_brand    = function_exists( 'joevernazza_portfolio_brand' ) ? joevernazza_portfolio_brand( $joevernazza_post->ID ) : '';
 			$joevernazza_image_id = joevernazza_project_image_id( $joevernazza_post->ID );
 			$joevernazza_source   = has_excerpt( $joevernazza_post ) ? $joevernazza_post->post_excerpt : strip_shortcodes( $joevernazza_post->post_content );
-			$joevernazza_excerpt  = joevernazza_truncate_text( html_entity_decode( wp_strip_all_tags( $joevernazza_source ), ENT_QUOTES, 'UTF-8' ), $joevernazza_length );
+			$joevernazza_text     = html_entity_decode( wp_strip_all_tags( $joevernazza_source ), ENT_QUOTES, 'UTF-8' );
+			$joevernazza_excerpt  = joevernazza_truncate_text( $joevernazza_text, $joevernazza_length );
+			$joevernazza_short    = joevernazza_truncate_text( $joevernazza_text, $joevernazza_mobile );
 			?>
 			<li class="projects__item animate animate--fade">
 				<?php if ( $joevernazza_image_id ) : ?>
@@ -136,7 +142,11 @@ if ( ! $joevernazza_posts ) {
 							<?php endif; ?>
 						</h<?php echo esc_html( $joevernazza_level ); ?>>
 						<?php if ( '' !== $joevernazza_excerpt ) : ?>
-							<p class="small has-light-color projects__excerpt"><?php echo esc_html( $joevernazza_excerpt ); ?></p>
+							<?php if ( $joevernazza_short === $joevernazza_excerpt ) : ?>
+								<p class="small has-light-color projects__excerpt"><?php echo esc_html( $joevernazza_excerpt ); ?></p>
+							<?php else : ?>
+								<p class="small has-light-color projects__excerpt"><span class="projects__excerpt-full"><?php echo esc_html( $joevernazza_excerpt ); ?></span><span class="projects__excerpt-short" aria-hidden="true"><?php echo esc_html( $joevernazza_short ); ?></span></p>
+							<?php endif; ?>
 						<?php endif; ?>
 					</div>
 					<?php

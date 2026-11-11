@@ -286,8 +286,8 @@ export default function Edit( { attributes, setAttributes } ) {
 					allowedFormats={ HEADING_FORMATS }
 				/>
 				<RichText
-					tagName="h2"
-					className="sticky-left-side__title"
+					tagName="p"
+					className="sticky-left-side__title small"
 					placeholder={ __( 'Title…', 'joevernazza' ) }
 					value={ title }
 					onChange={ ( value ) => setAttributes( { title: value } ) }
