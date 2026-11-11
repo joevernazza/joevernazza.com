@@ -87,16 +87,21 @@
             }
         }
 
-        // Mobile and tablet (view.js): the slides move. The incoming slide
-        // starts at from-next/from-prev and moves to its place; the outgoing
-        // one (is-leaving) moves to to-prev/to-next.
-        &.portfolio-slider__carousel--slide-x,
-        &.portfolio-slider__carousel--slide-y{
+        // Mobile and tablet (view.js): slides move in from the right; swipe
+        // left/right. The incoming slide starts at from-next/from-prev and
+        // moves to its place; the outgoing one (is-leaving) moves to
+        // to-prev/to-next. Slower than the site's 0.25s (keep TRANSITION in
+        // view.js just above it).
+        &.portfolio-slider__carousel--slide-x{
+
+            .portfolio-slider__track{
+                touch-action: pan-y;
+            }
 
             .portfolio-slider__slide{
 
                 @media (prefers-reduced-motion: no-preference) {
-                    transition: transform 0.25s ease-in-out;
+                    transition: transform 0.6s ease-in-out;
                 }
 
                 &.is-leaving,
@@ -108,17 +113,6 @@
                 &.is-instant{
                     transition: none;
                 }
-            }
-        }
-
-        // Tablet: slides in from the right; swipe left/right.
-        &.portfolio-slider__carousel--slide-x{
-
-            .portfolio-slider__track{
-                touch-action: pan-y;
-            }
-
-            .portfolio-slider__slide{
 
                 &.from-next,
                 &.to-next{
@@ -128,28 +122,6 @@
                 &.from-prev,
                 &.to-prev{
                     transform: translateX(-100%);
-                }
-            }
-        }
-
-        // Mobile: slides up from below; swipe up/down (so the page doesn't
-        // scroll vertically while swiping on the slider).
-        &.portfolio-slider__carousel--slide-y{
-
-            .portfolio-slider__track{
-                touch-action: pan-x;
-            }
-
-            .portfolio-slider__slide{
-
-                &.from-next,
-                &.to-next{
-                    transform: translateY(100%);
-                }
-
-                &.from-prev,
-                &.to-prev{
-                    transform: translateY(-100%);
                 }
             }
         }

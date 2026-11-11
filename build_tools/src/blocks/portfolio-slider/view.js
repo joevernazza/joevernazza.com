@@ -7,10 +7,9 @@
  * the current one `active`) and one mode class, by screen width (the
  * theme's breakpoints):
  *
- * - below 768px, `--slide-y`: the next slide slides up from below; swipe up
- *   for the next slide, down for the previous one.
- * - 768px to 1023px, `--slide-x`: the next slide slides in from the right;
- *   swipe left for the next slide, right for the previous one.
+ * - below 1024px (mobile and tablet), `--slide-x`: the next slide slides in
+ *   from the right; swipe left for the next slide, right for the previous
+ *   one.
  * - 1024px and up, `--fade`: slides cross-fade; no swipe.
  *
  * The movement is CSS (components/_portfolio-slider.scss). For a slide
@@ -28,13 +27,12 @@
  */
 
 const INTERVAL = 3000;
-// Longest slide/fade transition in the CSS, plus a little.
-const TRANSITION = 400;
+// Longest slide/fade transition in the CSS (the 0.6s slide), plus a little.
+const TRANSITION = 700;
 const SWIPE = 40;
 
 const MODES = {
 	x: 'portfolio-slider__carousel--slide-x',
-	y: 'portfolio-slider__carousel--slide-y',
 	fade: 'portfolio-slider__carousel--fade',
 };
 const POSITIONS = [
@@ -46,19 +44,15 @@ const POSITIONS = [
 ];
 
 const desktop = window.matchMedia( '(min-width: 1024px)' );
-const tablet = window.matchMedia( '(min-width: 768px)' );
 const reducedMotion = window.matchMedia( '(prefers-reduced-motion: reduce)' );
 
 /**
  * The mode for the current screen width.
  *
- * @return {string} "fade", "x" or "y".
+ * @return {string} "fade" or "x".
  */
 function currentMode() {
-	if ( desktop.matches ) {
-		return 'fade';
-	}
-	return tablet.matches ? 'x' : 'y';
+	return desktop.matches ? 'fade' : 'x';
 }
 
 /**
@@ -188,20 +182,16 @@ function initSlider( carousel ) {
 	};
 
 	track.addEventListener( 'keydown', ( event ) => {
-		const back =
-			mode === 'y' ? [ 'ArrowLeft', 'ArrowUp' ] : [ 'ArrowLeft' ];
-		const forward =
-			mode === 'y' ? [ 'ArrowRight', 'ArrowDown' ] : [ 'ArrowRight' ];
-		if ( back.includes( event.key ) ) {
+		if ( event.key === 'ArrowLeft' ) {
 			event.preventDefault();
 			go( -1 );
-		} else if ( forward.includes( event.key ) ) {
+		} else if ( event.key === 'ArrowRight' ) {
 			event.preventDefault();
 			go( 1 );
 		}
 	} );
 
-	// Swipe (not on desktop): up/down below 768px, left/right on tablets.
+	// Swipe left/right (not on desktop).
 	let start = null;
 	track.addEventListener( 'pointerdown', ( event ) => {
 		start = { x: event.clientX, y: event.clientY };
@@ -214,13 +204,9 @@ function initSlider( carousel ) {
 		const dx = event.clientX - start.x;
 		const dy = event.clientY - start.y;
 		start = null;
-		const [ along, across ] = mode === 'y' ? [ dy, dx ] : [ dx, dy ];
-		if (
-			Math.abs( along ) >= SWIPE &&
-			Math.abs( along ) > Math.abs( across )
-		) {
-			// Swiping up or left shows the next slide.
-			go( along < 0 ? 1 : -1 );
+		if ( Math.abs( dx ) >= SWIPE && Math.abs( dx ) > Math.abs( dy ) ) {
+			// Swiping left shows the next slide, right the previous one.
+			go( dx < 0 ? 1 : -1 );
 		}
 	} );
 	track.addEventListener( 'pointercancel', () => {
@@ -248,7 +234,6 @@ function initSlider( carousel ) {
 	} );
 
 	desktop.addEventListener( 'change', setMode );
-	tablet.addEventListener( 'change', setMode );
 
 	carousel.classList.add( 'portfolio-slider__carousel--stacked' );
 	setMode();
