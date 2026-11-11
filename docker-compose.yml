@@ -25,6 +25,9 @@ x-wp-env: &wp-env
     // a phone on the same Wi-Fi). WP-CLI has no host: localhost:8090.
     define( 'WP_HOME', 'http://' . ( $$_SERVER['HTTP_HOST'] ?? 'localhost:8090' ) );
     define( 'WP_SITEURL', WP_HOME );
+    // WP_DEBUG stays on, but notices go to `docker compose logs wordpress`
+    // instead of the page (third-party plugins' PHP 8.4 deprecations).
+    define( 'WP_DEBUG_DISPLAY', false );
 
 services:
   db:

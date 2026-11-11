@@ -448,15 +448,15 @@ function joevernazza_portfolio_skip_empty_paragraphs( $block_content ) {
 add_filter( 'render_block_core/paragraph', 'joevernazza_portfolio_skip_empty_paragraphs' );
 
 /**
- * A brand name as the label shown in h2.sticky-left-side__title on a
+ * A brand name as the label shown in p.sticky-left-side__title on a
  * portfolio entry (header and the mobile/tablet copy):
- * <strong>Brand : <span class="has-white-color">Name</span></strong>.
+ * <strong><span class="has-tertiary-color">Brand : </span><span class="has-white-color">Name</span></strong>.
  *
  * @param string $brand Brand name (plain text).
  * @return string HTML.
  */
 function joevernazza_portfolio_brand_label( $brand ) {
-	return '<strong>' . esc_html__( 'Brand :', 'joevernazza' ) . ' <span class="has-white-color">' . esc_html( $brand ) . '</span></strong>';
+	return '<strong><span class="has-tertiary-color">' . esc_html__( 'Brand :', 'joevernazza' ) . ' </span><span class="has-white-color">' . esc_html( $brand ) . '</span></strong>';
 }
 
 /**
@@ -464,12 +464,13 @@ function joevernazza_portfolio_brand_label( $brand ) {
  * none. Shown in the Sticky Left Side header (desktop) and above the entry
  * content (mobile and tablet).
  *
- * @param int $post_id Portfolio entry ID.
+ * @param int    $post_id Portfolio entry ID.
+ * @param string $classes Extra classes, e.g. "small" in the header.
  * @return string HTML.
  */
-function joevernazza_portfolio_role_html( $post_id ) {
+function joevernazza_portfolio_role_html( $post_id, $classes = '' ) {
 	$role = joevernazza_portfolio_role( $post_id );
-	return '' === $role ? '' : '<p class="sticky-left-side__role animate animate--fade"><span class="has-tertiary-color">Role : </span>' . esc_html( $role ) . '</p>';
+	return '' === $role ? '' : '<p class="' . esc_attr( trim( 'sticky-left-side__role ' . $classes ) ) . ' animate animate--fade"><strong><span class="has-tertiary-color">Role : </span></strong>' . esc_html( $role ) . '</p>';
 }
 
 /**
@@ -501,7 +502,7 @@ function joevernazza_portfolio_launch_html( $post_id ) {
 }
 
 /**
- * On a portfolio entry, puts a copy of the brand (h2.sticky-left-side__title)
+ * On a portfolio entry, puts a copy of the brand (p.sticky-left-side__title)
  * and role right before the entry content (.main__text in single-portfolio.html) and of the Launch links
  * right after it, each in a div.main__details, for mobile and tablet, where
  * the header hides them.
@@ -516,8 +517,8 @@ function joevernazza_portfolio_mobile_details( $block_content, $block ) {
 	}
 	$post_id = get_queried_object_id();
 	$brand   = joevernazza_portfolio_brand( $post_id );
-	// Brand (the header's h2.sticky-left-side__title), then the role.
-	$intro  = ( '' === $brand ? '' : '<h2 class="sticky-left-side__title mb0 animate animate--fade">' . joevernazza_portfolio_brand_label( $brand ) . '</h2>' )
+	// Brand (the header's p.sticky-left-side__title), then the role.
+	$intro  = ( '' === $brand ? '' : '<p class="sticky-left-side__title mb0 animate animate--fade">' . joevernazza_portfolio_brand_label( $brand ) . '</p>' )
 		. joevernazza_portfolio_role_html( $post_id );
 	$launch = joevernazza_portfolio_launch_html( $post_id );
 	return ( '' === $intro ? '' : '<div class="main__details">' . $intro . '</div>' )

@@ -17,13 +17,13 @@ vendor/
 /public_html/wp-config.php
 # Core's own bundled scripts, which the "vendor/" rule above would skip.
 !/public_html/wp-includes/js/dist/vendor/
+# Plugins ship their own dependencies.
+!/public_html/wp-content/plugins/*/vendor/
 /public_html/wp-config-docker.php
 /public_html/.htaccess
 /public_html/wp-content/*
 !/public_html/wp-content/index.php
 !/public_html/wp-content/plugins/
-/public_html/wp-content/plugins/*
-!/public_html/wp-content/plugins/index.php
 !/public_html/wp-content/themes/
 /public_html/wp-content/themes/*
 !/public_html/wp-content/themes/index.php
