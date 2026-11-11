@@ -425,22 +425,67 @@ export function initSectionNav( {
 
 	// Loaded (or refreshed) with a section's #hash in the URL: the browser's
 	// own jump ignores the offset, so line the section up the same way a
-	// click does, once images and fonts have settled the layout.
+	// click does, once images and fonts have settled the layout. The section
+	// is pinned like a clicked one. For a few seconds after, until the user
+	// scrolls, the position is corrected again: a moment later (layout still
+	// settling, e.g. fonts on iOS Safari) and whenever the viewport resizes
+	// (iOS Safari's address bar shrinking moves the page up ~45px).
 	const initial = targets.find(
 		( target ) => target.hash === window.location.hash
 	);
 	if ( initial ) {
 		window.history.scrollRestoration = 'manual';
+		const LOAD_WATCH = 3000;
+		const watchTimers = [];
+		let watching = true;
+		// Native, not lenis.scrollTo(): Lenis may not have picked up the
+		// browser's anchor jump yet and would skip a "move" to where it
+		// thinks it already is. Lenis follows native scrolls.
+		const correct = () => {
+			if ( ! watching ) {
+				return;
+			}
+			const top = scrollTopFor( initial );
+			if ( Math.abs( top - window.scrollY ) > 1 ) {
+				window.scrollTo( { top, behavior: 'instant' } );
+			}
+		};
+		const stopWatching = () => {
+			watching = false;
+			watchTimers.forEach( clearTimeout );
+			window.removeEventListener( 'resize', correct );
+			window.visualViewport?.removeEventListener( 'resize', correct );
+		};
+		// The user scrolling by hand ends the corrections.
+		const onUserScroll = ( event ) => {
+			if (
+				event.type !== 'keydown' ||
+				SCROLL_KEYS.includes( event.key )
+			) {
+				stopWatching();
+			}
+		};
+		[ 'wheel', 'touchmove', 'keydown' ].forEach( ( type ) =>
+			window.addEventListener( type, onUserScroll, { passive: true } )
+		);
+		window.addEventListener( 'resize', correct );
+		window.visualViewport?.addEventListener( 'resize', correct );
+
 		const align = () => {
-			const top =
-				initial.section.getBoundingClientRect().top +
-				window.scrollY -
-				offsetOf( initial );
-			// Native, not lenis.scrollTo(): Lenis may not have picked up the
-			// browser's anchor jump yet and would skip a "move" to where it
-			// thinks it already is. Lenis follows native scrolls.
-			window.scrollTo( { top, behavior: 'instant' } );
 			setCurrent( initial );
+			pinned = true;
+			correct();
+			watchTimers.push(
+				...[ 150, 500, 1000 ].map( ( ms ) =>
+					window.setTimeout( correct, ms )
+				),
+				window.setTimeout( () => {
+					stopWatching();
+					[ 'wheel', 'touchmove', 'keydown' ].forEach( ( type ) =>
+						window.removeEventListener( type, onUserScroll )
+					);
+				}, LOAD_WATCH )
+			);
 		};
 		if ( document.readyState === 'complete' ) {
 			align();
