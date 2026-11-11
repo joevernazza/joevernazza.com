@@ -6,6 +6,8 @@
 #                             wp-content's "silence" index.php files
 #   - the theme            -> wp-content/themes/joevernazza/
 #   - the must-use plugin  -> wp-content/mu-plugins/joevernazza(.php)
+#   - each plugin in git   -> wp-content/plugins/<name>/ (activate it in
+#                             wp-admin after its first deploy)
 # wp-config.php, .htaccess, uploads and anything else on the server are never
 # touched. Core is updated on purpose (automatic updates are off): commit the
 # new version and push.
@@ -139,6 +141,20 @@ jobs:
             -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }}" \
             public_html/wp-content/themes/joevernazza/ \
             "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/wp-content/themes/joevernazza/"
+
+      # Each plugin folder in git, mirrored on its own: plugins only on the
+      # server are left alone. A plugin removed from git stays on the server
+      # until you delete it there.
+      - name: Upload plugins
+        run: |
+          RSYNC_SSH="ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }}"
+          TARGET="${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/wp-content/plugins"
+          for dir in public_html/wp-content/plugins/*/; do
+            [ -d "$dir" ] || continue
+            name="$(basename "$dir")"
+            rsync -avz --delete --exclude '.DS_Store' -e "$RSYNC_SSH" \
+              "$dir" "$TARGET/$name/"
+          done
 
       - name: Upload must-use plugin
         run: |

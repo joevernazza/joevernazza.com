@@ -54,7 +54,7 @@ Each of these came from building and testing this site. They now live in the tem
 | Change | Why |
 | --- | --- |
 | Git tracks WordPress core alongside the theme and must-use plugin; `wp-config.php`, `.htaccess` and uploads are ignored | One push sets up a fresh server, and every environment runs the exact same core. Credentials don't belong in git, and uploads are content. |
-| The deploy `rsync`s core and our two folders, with `--delete` limited to `wp-admin/`, `wp-includes/` and our folders | Removed files disappear from the server, but `wp-config.php`, `.htaccess`, uploads and other plugins can never be overwritten or deleted by a deploy. |
+| The deploy `rsync`s core, our two folders and each plugin committed to `wp-content/plugins/`, with `--delete` limited to `wp-admin/`, `wp-includes/`, our folders and each committed plugin's own folder | Removed files disappear from the server, but `wp-config.php`, `.htaccess`, uploads and plugins that aren't in git can never be overwritten or deleted by a deploy. |
 | Automatic updates are off (`AUTOMATIC_UPDATER_DISABLED`), and wp-admin can't update or install (`DISALLOW_FILE_MODS`) | Core is in git, so an update made on the server would be undone by the next deploy. Updates are done locally, checked, committed and pushed. |
 | Lint runs before every build (PHPCS with WordPress Coding Standards, ESLint, Stylelint), and on pull requests too | Coding standards are enforced, not just recommended, and a lint failure blocks the deploy. |
 | Docker images are pinned by digest | Every machine runs exactly the same versions until someone deliberately updates them. |
